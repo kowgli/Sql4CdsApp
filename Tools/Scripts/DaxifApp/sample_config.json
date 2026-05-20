@@ -1,0 +1,29 @@
+{
+  //"connectionString": "Url=https://org.crm.dynamics.com; AuthType=ClientSecret; ClientId=xxxxxx-yyyyy-zzzzzz; ClientSecret=XYZ123",
+  "connectionString": "VaultUrl=https://my_vault.vault.azure.net/; Key=MyConnectionStringSecret",
+  "crmXrmSolutionName": "MySolutionName",
+  "context": {
+    "entities": [
+      "account",
+      "contact",
+      "systemuser",
+      "businessunit"
+    ],
+    "contextNamespace": "MySolution.Xrm",
+    "contextClassName": "MyContext",
+    "outputFolder": ""
+  },
+
+  "plugins": [
+    {
+      "pluginProjectFile": "..\\..\\Xrm.Plugins1\\Xrm.Plugins.csproj",
+      "pluginDll": "..\\..\\Xrm.Plugins1\\bin\\Release\\ILMerge\\Xrm.Plugin.dll",
+      "registerInNoIsolation": false
+    },
+    {
+      "pluginProjectFile": "..\\..\\Xrm.Plugins2\\Xrm.Plugins.csproj",
+      "pluginDll": "..\\..\\Xrm.Plugins2\\bin\\Release\\ILMerge\\Xrm.Plugin.dll",
+      "registerInNoIsolation": false
+    }
+  ]
+}

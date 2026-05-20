@@ -1,0 +1,14 @@
+{
+  "connectionString": "Url=https://org.crm4.dynamics.com; AuthType=ClientSecret; ClientId=__CLIENT_ID__; ClientSecret=__CLIENT_SECRET__",
+  // For AKV: "connectionString": "VaultUrl=https://my_vault.vault.azure.net/; Key=MyConnectionStringSecret",
+  "mappings": [
+    //{
+    //  "source": "forms/account/main.bundle.js",
+    //  "target": "new_/forms/account/main.js"
+    //},
+    //{
+    //  "source": "img/dialog_16.png",
+    //  "target": "new_/img/dialog_16.png"
+    //}
+  ]
+}

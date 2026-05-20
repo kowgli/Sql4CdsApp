@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp7</TargetFramework>
+    <UserSecretsId>164860d5-5a72-4651-91e9-1afc380875eb</UserSecretsId>
+    <AssemblyName>WebResources</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="extensions\**" />
+    <Compile Remove="img\**" />
+    <Content Remove="extensions\**" />
+    <Content Remove="img\**" />
+    <EmbeddedResource Remove="extensions\**" />
+    <EmbeddedResource Remove="img\**" />
+    <None Remove="extensions\**" />
+    <None Remove="img\**" />
+    <TypeScriptCompile Remove="extensions\**" />
+    <TypeScriptCompile Remove="img\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="bundleconfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>    
+    <TypeScriptCompile Remove="libs\ext\alert.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="bundleconfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.4.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>    
+    <Folder Include="forms\sqlEditor\" />    
+    <Folder Include="libs\ext\select2\" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptJSXEmit>React</TypeScriptJSXEmit>
+    <TypeScriptModuleKind>None</TypeScriptModuleKind>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
+    <TypeScriptOutFile></TypeScriptOutFile>
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptSourceMap>True</TypeScriptSourceMap>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
+  </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="REM &quot;$(SolutionDir)Tools\WebResourceSync\bin\Debug\WebResourceSync.exe&quot; webResourceMappings.json" />
+  </Target>
+
+</Project>

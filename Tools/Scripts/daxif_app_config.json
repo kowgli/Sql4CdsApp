@@ -1,0 +1,43 @@
+{
+  "connectionString": "Url=https://org.crm4.dynamics.com; AuthType=ClientSecret; ClientId=__CLIENT_ID__; ClientSecret=__CLIENT_SECRET__",
+  //For AKV: "connectionString": "VaultUrl=https://my_vault.vault.azure.net/; Key=MyConnectionStringSecret",
+  "crmXrmSolutionName": "__SolutionName__",
+  "context": {
+    "entities": [
+      "systemuser",
+      "businessunit",
+      "team",
+      "account",
+      "contact",
+      "sdkmessageprocessingstep",
+      "plugintype",
+      "sdkmessageprocessingstepsecureconfig",
+      "usersettings",
+      "timezonedefinition",
+      "annotation",
+      "role",
+      "systemuserroles",
+      "appmodule",
+      "organization",
+      "activityparty",
+      "email",
+      "template",
+      "asyncoperation",
+      "workflow",
+      "stringmap",
+      "audit"
+    ],
+    "contextNamespace": "Xrm.Domain.Crm",
+    "contextClassName": "XrmContext",
+    "outputFolder": "..\\..\\..\\Xrm.Domain\\Crm"
+  },
+
+  "plugins": [
+    {
+      "name": "Plugin1",
+      "pluginProjectFile": "..\\..\\..\\Plugins\\Xrm.Plugin.Plugin1\\Xrm.Plugin.Plugin1.csproj",
+      "pluginDll": "..\\..\\..\\Plugins\\Release\\Xrm.Plugin.Plugin1.Merged.dll",
+      "registerInNoIsolation": false
+    }
+  ]
+}
