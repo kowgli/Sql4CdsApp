@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>SQL Editor</title>
+
+    <!-- Tabulator CSS from CDN (Tabulator is MIT licensed) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabulator-tables@6.4.0/dist/css/tabulator.min.css">
+
+  
+    <link href="css/sqlEditor.main.css" rel="stylesheet" />
+    <!-- Ace from CDN (Ace is embeddable and supports modes/themes) -->
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min-noconflict/ace.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min-noconflict/mode-sql.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min-noconflict/theme-sqlserver.js"></script>
+
+    <!-- Tabulator from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/tabulator-tables@6.4.0/dist/js/tabulator.min.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <div id="toolbar">
+            <button class="btn btn-primary" id="runBtn" title="Run (Ctrl+Enter)">Run</button>
+            <button class="btn btn-ghost" id="formatBtn" title="Basic format (simple)">Format</button>
+            <button class="btn btn-ghost" id="clearBtn" title="Clear results">Clear results</button>
+
+            <div class="spacer"></div>
+            <div id="status">Ready</div>
+        </div>
+
+        <div id="main">
+            <div class="panel" id="editorPanel">
+                <div id="editorHeader">
+                    <span>SQL editor</span>
+                    <span style="font-family:ui-monospace,Consolas,monospace">Ctrl+Enter to run</span>
+                </div>
+                <div id="editor"></div>
+                <div id="errorBox"></div>
+            </div>
+
+            <div class="panel" id="gridPanel">
+                <div id="gridHeader">
+                    <span>Results</span>
+                    <span id="rowsInfo">0 rows</span>
+                </div>
+                <div id="grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/sqlEditor.main.js"></script>
+</body>
+</html>

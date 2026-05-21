@@ -8,9 +8,9 @@
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,
 		"skipLibCheck": true,
-		"target": "es2016",
+		"target": "es2019",
 		"lib": [
-			"es2017",
+			"es2019",
 			"dom",
 			"scripthost"
 		],

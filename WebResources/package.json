@@ -11,6 +11,8 @@
     "@types/select2": "4.0.48",
     "@types/knockout": "3.4.66",
     "@types/ckeditor": "4.9.9",
+    "@types/ace": "0.0.52",
+    "@types/tabulator": "0.1.2",
     "@fullcalendar/core": "4.3.1",
     "@fullcalendar/daygrid": "4.3.0",
     "@fullcalendar/timegrid": "4.3.0"

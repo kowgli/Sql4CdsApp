@@ -1,0 +1,159 @@
+﻿/* Fluent-ish palette / spacing (approximation) */
+:root {
+    --pp-bg: #f3f2f1;
+    --pp-surface: #ffffff;
+    --pp-border: #edebe9;
+    --pp-text: #323130;
+    --pp-muted: #605e5c;
+    --pp-primary: #0078d4;
+    --pp-primary-hover: #106ebe;
+    --pp-danger: #a4262c;
+    --pp-shadow: 0 1px 2px rgba(0,0,0,.08);
+    --radius: 6px;
+    --pad: 8px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --font: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    background: var(--pp-bg);
+    font-family: var(--font);
+    color: var(--pp-text);
+}
+
+#app {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+#toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--radius);
+    box-shadow: var(--pp-shadow);
+    padding: var(--pad);
+}
+
+.btn {
+    appearance: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.btn-primary {
+    background: var(--pp-primary);
+    color: #fff;
+}
+
+    .btn-primary:hover {
+        background: var(--pp-primary-hover);
+    }
+
+.btn-ghost {
+    background: transparent;
+    border-color: var(--pp-border);
+    color: var(--pp-text);
+}
+
+    .btn-ghost:hover {
+        background: #faf9f8;
+    }
+
+.spacer {
+    flex: 1;
+}
+
+#status {
+    font-size: 12px;
+    color: var(--pp-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 55%;
+}
+
+#main {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    gap: 8px;
+}
+
+.panel {
+    background: var(--pp-surface);
+    border: 1px solid var(--pp-border);
+    border-radius: var(--radius);
+    box-shadow: var(--pp-shadow);
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#editorPanel {
+    flex: 1.1;
+    min-width: 420px;
+}
+
+#editorHeader, #gridHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--pp-border);
+    padding: 8px 10px;
+    font-size: 12px;
+    color: var(--pp-muted);
+}
+
+#editor {
+    flex: 1;
+    min-height: 0;
+    font-family: var(--mono);
+    border-bottom-left-radius: var(--radius);
+    border-bottom-right-radius: var(--radius);
+}
+
+#gridPanel {
+    flex: 0.9;
+    min-width: 360px;
+}
+
+#grid {
+    flex: 1;
+    min-height: 0;
+}
+
+#errorBox {
+    display: none;
+    margin-top: 8px;
+    padding: 8px 10px;
+    border: 1px solid rgba(164,38,44,.25);
+    background: rgba(164,38,44,.06);
+    color: var(--pp-danger);
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: pre-wrap;
+}
+
+/* Make Tabulator look a bit closer to Power Platform */
+.tabulator {
+    border: none;
+    font-family: var(--font);
+}
+
+    .tabulator .tabulator-header {
+        background: #faf9f8;
+        border-bottom: 1px solid var(--pp-border);
+    }

@@ -7,15 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="extensions\**" />
     <Compile Remove="img\**" />
-    <Content Remove="extensions\**" />
     <Content Remove="img\**" />
-    <EmbeddedResource Remove="extensions\**" />
     <EmbeddedResource Remove="img\**" />
-    <None Remove="extensions\**" />
     <None Remove="img\**" />
-    <TypeScriptCompile Remove="extensions\**" />
     <TypeScriptCompile Remove="img\**" />
   </ItemGroup>
 
@@ -39,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>    
-    <Folder Include="forms\sqlEditor\" />    
+    <Folder Include="forms\" />    
     <Folder Include="libs\ext\select2\" />
   </ItemGroup>
 

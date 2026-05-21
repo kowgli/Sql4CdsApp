@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var XRM;
 (function (XRM) {
     var Libs;
@@ -61,47 +52,43 @@ var XRM;
                     callback(response);
                 });
             }
-            static ensureResponseAsync(result) {
-                return __awaiter(this, void 0, void 0, function* () {
-                    if (!result) {
-                        return null;
-                    }
-                    if (result.responseText) {
-                        return JSON.parse(result.responseText);
-                    }
-                    return result.json();
-                });
-            }
-            static callGenericActionAsync(type, request) {
-                return __awaiter(this, void 0, void 0, function* () {
-                    let action = {
-                        Type: type,
-                        Request: request,
-                        getMetadata: function () {
-                            return {
-                                boundParameter: null,
-                                parameterTypes: {
-                                    "Type": {
-                                        "typeName": "Edm.String",
-                                        "structuralProperty": 1
-                                    },
-                                    "Request": {
-                                        "typeName": "Edm.String",
-                                        "structuralProperty": 1
-                                    }
-                                },
-                                operationType: 0,
-                                operationName: "mm365_GenericAction"
-                            };
-                        }
-                    };
-                    let result = yield Xrm.WebApi.online.execute(action);
-                    if (result.ok) {
-                        let response = yield this.ensureResponseAsync(result);
-                        return response.Response;
-                    }
+            static async ensureResponseAsync(result) {
+                if (!result) {
                     return null;
-                });
+                }
+                if (result.responseText) {
+                    return JSON.parse(result.responseText);
+                }
+                return result.json();
+            }
+            static async callGenericActionAsync(type, request) {
+                let action = {
+                    Type: type,
+                    Request: request,
+                    getMetadata: function () {
+                        return {
+                            boundParameter: null,
+                            parameterTypes: {
+                                "Type": {
+                                    "typeName": "Edm.String",
+                                    "structuralProperty": 1
+                                },
+                                "Request": {
+                                    "typeName": "Edm.String",
+                                    "structuralProperty": 1
+                                }
+                            },
+                            operationType: 0,
+                            operationName: "mm365_GenericAction"
+                        };
+                    }
+                };
+                let result = await Xrm.WebApi.online.execute(action);
+                if (result.ok) {
+                    let response = await this.ensureResponseAsync(result);
+                    return response.Response;
+                }
+                return null;
             }
             static callGenericAction(type, request, callback) {
                 let action = {
