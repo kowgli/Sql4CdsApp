@@ -1,0 +1,301 @@
+/* ── Fluent UI / Dataverse MDA palette ── */
+:root {
+    --f-bg:           #f3f2f1;
+    --f-surface:      #ffffff;
+    --f-border:       #e1dfdd;
+    --f-header-bg:    #faf9f8;
+    --f-text:         #201f1e;
+    --f-muted:        #605e5c;
+    --f-primary:      #0078d4;
+    --f-primary-h:    #106ebe;
+    --f-primary-d:    #005a9e;
+    --f-danger:       #a4262c;
+    --f-hover:        #f3f2f1;
+    --f-pressed:      #edebe9;
+    --font:  "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    --mono:  "Cascadia Code", "Cascadia Mono", Consolas, "Courier New", monospace;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--f-bg);
+    font-family: var(--font);
+    font-size: 14px;
+    color: var(--f-text);
+}
+
+/* ── App shell ── */
+#app {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── Command bar (Fluent) ── */
+#toolbar {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    height: 44px;
+    padding: 0 8px;
+    box-sizing: border-box;
+    background: var(--f-surface);
+    border-bottom: 1px solid var(--f-border);
+}
+
+.cmd-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    appearance: none;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    padding: 0 10px;
+    height: 32px;
+    font-size: 14px;
+    font-family: var(--font);
+    cursor: pointer;
+    user-select: none;
+    color: var(--f-text);
+    background: transparent;
+    white-space: nowrap;
+    transition: background 0.1s;
+}
+
+    .cmd-btn:hover { background: var(--f-hover); }
+    .cmd-btn:active { background: var(--f-pressed); }
+    .cmd-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.cmd-btn-primary {
+    background: var(--f-primary);
+    color: #fff;
+}
+
+    .cmd-btn-primary:hover  { background: var(--f-primary-h); }
+    .cmd-btn-primary:active { background: var(--f-primary-d); }
+    .cmd-btn-primary:disabled { background: var(--f-primary); }
+
+/* thin vertical separator between button groups */
+.cmd-sep {
+    width: 1px;
+    height: 20px;
+    background: var(--f-border);
+    margin: 0 4px;
+    flex-shrink: 0;
+}
+
+.spacer { flex: 1; }
+
+#status {
+    font-size: 12px;
+    color: var(--f-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 50%;
+    padding-right: 4px;
+}
+
+/* ── Main content area (vertical split) ── */
+#main {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overflow: hidden;
+}
+
+/* ── Panels ── */
+.panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: var(--f-surface);
+    overflow: hidden;
+}
+
+#editorPanel {
+    flex: 1 1 0;
+    min-height: 80px;
+}
+
+#gridPanel {
+    flex: 1 1 0;
+    min-height: 80px;
+}
+
+/* ── Panel header bar ── */
+.panel-header {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 32px;
+    padding: 0 12px;
+    background: var(--f-header-bg);
+    border-bottom: 1px solid var(--f-border);
+}
+
+.panel-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--f-muted);
+}
+
+.panel-hint {
+    font-size: 11px;
+    color: var(--f-muted);
+}
+
+/* ── Ace editor ── */
+#editor {
+    flex: 1;
+    min-height: 0;
+    font-family: var(--mono);
+}
+
+/* ── Error box ── */
+#errorBox {
+    display: none;
+    flex: none;
+    padding: 8px 12px;
+    border-top: 1px solid rgba(164, 38, 44, .25);
+    background: rgba(164, 38, 44, .06);
+    color: var(--f-danger);
+    font-size: 12px;
+    white-space: pre-wrap;
+}
+
+/* ── Draggable divider ── */
+#divider {
+    flex: none;
+    height: 8px;           /* invisible hit zone */
+    position: relative;
+    cursor: ns-resize;
+    background: transparent;
+    z-index: 10;
+}
+
+    /* 1 px visible line centred inside the hit zone */
+    #divider::after {
+        content: '';
+        position: absolute;
+        inset: 3px 0;
+        height: 1px;
+        background: var(--f-border);
+        transition: background 0.15s, inset 0.1s;
+    }
+
+    #divider:hover::after,
+    #divider.dragging::after {
+        inset: 2px 0;
+        height: 3px;
+        background: var(--f-primary);
+    }
+
+/* ── Results grid ── */
+#grid {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* ── Tabulator – Power Platform grid style ── */
+.tabulator {
+    border: none !important;
+    font-family: var(--font) !important;
+    font-size: 14px !important;
+    background: var(--f-surface) !important;
+}
+
+/* Column headers */
+.tabulator .tabulator-header {
+    background: var(--f-surface) !important;
+    border-bottom: 2px solid var(--f-border) !important;
+    color: var(--f-muted) !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+}
+
+.tabulator .tabulator-header .tabulator-col {
+    background: transparent !important;
+    border-right: none !important;
+    height: 36px !important;
+    padding: 0 !important;
+}
+
+/* Vertically centre the title + sort arrow inside the column */
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+    height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 12px !important;
+    box-sizing: border-box !important;
+}
+
+.tabulator .tabulator-header .tabulator-col:hover {
+    background: var(--f-hover) !important;
+}
+
+/* Sort arrow: use primary blue */
+.tabulator .tabulator-col .tabulator-col-sorter {
+    display: flex !important;
+    align-items: center !important;
+    margin-left: 4px !important;
+}
+
+.tabulator .tabulator-col .tabulator-col-sorter .tabulator-arrow {
+    border-bottom-color: var(--f-primary) !important;
+    border-top-color: var(--f-primary) !important;
+}
+
+/* Data rows */
+.tabulator-row,
+.tabulator-row.tabulator-row-odd,
+.tabulator-row.tabulator-row-even {
+    background: var(--f-surface) !important;
+    border-bottom: 1px solid var(--f-border) !important;
+    min-height: 36px !important;
+}
+
+.tabulator-row:hover,
+.tabulator-row.tabulator-row-odd:hover,
+.tabulator-row.tabulator-row-even:hover {
+    background: #eff6fc !important;
+}
+
+/* Selected row with left blue accent bar (PP style) */
+.tabulator-row.tabulator-selected,
+.tabulator-row.tabulator-row-odd.tabulator-selected,
+.tabulator-row.tabulator-row-even.tabulator-selected {
+    background: #deecf9 !important;
+    color: var(--f-text) !important;
+    box-shadow: inset 3px 0 0 var(--f-primary) !important;
+}
+
+.tabulator-row.tabulator-selected:hover {
+    background: #c7e0f4 !important;
+}
+
+/* Cells: no vertical separators, generous horizontal padding */
+.tabulator .tabulator-cell {
+    border-right: none !important;
+    padding: 0 12px !important;
+    height: 36px !important;
+    line-height: 36px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Empty-state placeholder */
+.tabulator-placeholder span {
+    color: var(--f-muted) !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+}
+

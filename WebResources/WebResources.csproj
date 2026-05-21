@@ -14,16 +14,8 @@
     <TypeScriptCompile Remove="img\**" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Remove="bundleconfig.json" />
-  </ItemGroup>
-
   <ItemGroup>    
     <TypeScriptCompile Remove="libs\ext\alert.ts" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="bundleconfig.json" />
   </ItemGroup>
 
   <ItemGroup>

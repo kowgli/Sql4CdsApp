@@ -1,14 +1,18 @@
 {
-  "connectionString": "Url=https://org.crm4.dynamics.com; AuthType=ClientSecret; ClientId=__CLIENT_ID__; ClientSecret=__CLIENT_SECRET__",
-  // For AKV: "connectionString": "VaultUrl=https://my_vault.vault.azure.net/; Key=MyConnectionStringSecret",
+  //"connectionString": "VaultUrl=https://crmdev365.vault.azure.net/; Key=DevCrm",
+  "connectionString": "******",
   "mappings": [
-    //{
-    //  "source": "forms/account/main.bundle.js",
-    //  "target": "new_/forms/account/main.js"
-    //},
-    //{
-    //  "source": "img/dialog_16.png",
-    //  "target": "new_/img/dialog_16.png"
-    //}
+    {
+      "source": "extensions/sqlEditor/sqlEditor.html",
+      "target": "cd365_/extensions/sqlEditor/sqlEditor.html"
+    },
+    {
+      "source": "extensions/sqlEditor/css/sqlEditor.bundle.css",
+      "target": "cd365_/extensions/sqlEditor/css/sqlEditor.bundle.css"
+    },
+    {
+      "source": "extensions/sqlEditor/js/sqlEditor.bundle.js",
+      "target": "cd365_/extensions/sqlEditor/js/sqlEditor.bundle.js"
+    }
   ]
 }

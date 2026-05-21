@@ -1,12 +1,14 @@
 [
-  /* Forms */
   {
-    "outputFileName": "forms/account/account.main.bundle.js",
+    "outputFileName": "extensions/sqlEditor/css/sqlEditor.bundle.css",
     "inputFiles": [
-      "libs/formHelper.js",
-      "libs/generalHelper.js",
-      "libs/queryHelper.js",
-      "forms/account/account.main.js"
+      "extensions/sqlEditor/css/sqlEditor.main.css"
+    ]
+  },
+  {
+    "outputFileName": "extensions/sqlEditor/js/sqlEditor.bundle.js",
+    "inputFiles": [
+      "extensions/sqlEditor/js/sqlEditor.main.js"
     ]
   }
 ]
