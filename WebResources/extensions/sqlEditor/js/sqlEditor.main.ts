@@ -9,9 +9,7 @@ namespace Sql4CdsApp.SqlEditor {
     let table, statusEl, errorBox, rowsInfo;
 
     export function onLoad() {
-        // -----------------------------
-        // Ace setup (SQL)
-        // -----------------------------
+        // ── Ace setup ──────────────────────────────────────────────────
         editor = ace.edit("editor");
         editor.session.setMode("ace/mode/sql");
         editor.setTheme("ace/theme/sqlserver");
@@ -38,9 +36,7 @@ WHERE statecode = 0;
             exec: () => run()
         });
 
-        // -----------------------------
-        // Tabulator setup (grid)
-        // -----------------------------
+        // ── Tabulator setup ────────────────────────────────────────────
         table = new Tabulator("#grid", {
             layout: "fitDataFill",
             placeholder: "No results yet",
@@ -49,21 +45,15 @@ WHERE statecode = 0;
             clipboard: true
         });
 
-        // -----------------------------
-        // UI helpers
-        // -----------------------------
+        // ── UI helpers ─────────────────────────────────────────────────
         statusEl = document.getElementById("status");
         errorBox = document.getElementById("errorBox");
         rowsInfo = document.getElementById("rowsInfo");
 
+        // ── Toolbar events ─────────────────────────────────────────────
+        document.getElementById("runBtn")!.addEventListener("click", run);
 
-        //-----------------------------
-        // Events
-        //-----------------------------
-        // Toolbar
-        document.getElementById("runBtn").addEventListener("click", run);
-
-        document.getElementById("clearBtn").addEventListener("click", () => {
+        document.getElementById("clearBtn")!.addEventListener("click", () => {
             table.clearData();
             table.setColumns([]);
             rowsInfo.textContent = "0 rows";
@@ -71,8 +61,7 @@ WHERE statecode = 0;
             clearError();
         });
 
-        document.getElementById("formatBtn").addEventListener("click", () => {
-            // Very simple formatter to keep it drop-in
+        document.getElementById("formatBtn")!.addEventListener("click", () => {
             const s = editor.getValue()
                 .replace(/\t/g, "  ")
                 .replace(/[ \t]+$/gm, "")
@@ -80,30 +69,100 @@ WHERE statecode = 0;
             editor.setValue(s + "\n", -1);
             setStatus("Formatted");
         });
+
+        // ── Divider drag ───────────────────────────────────────────────
+        setupDivider();
+
+        // ── Window resize: reclamp and redraw ──────────────────────────
+        window.addEventListener("resize", onWindowResize);
     }
 
-    function setStatus(text) { statusEl.textContent = text; }
+    // ── Divider / splitter ─────────────────────────────────────────────
+    function setupDivider() {
+        const divider     = document.getElementById("divider")!;
+        const editorPanel = document.getElementById("editorPanel")!;
+        const mainEl      = document.getElementById("main")!;
 
-    function showError(errText) {
+        let isDragging = false;
+        let startY = 0;
+        let startEditorH = 0;
+        let editorHeightPx: number | null = null; // null → flex layout
+
+        function stopDrag() {
+            if (!isDragging) return;
+            isDragging = false;
+            divider.classList.remove("dragging");
+            editor.resize();
+            table.redraw(true);
+        }
+
+        divider.addEventListener("pointerdown", (e: PointerEvent) => {
+            isDragging = true;
+            startY = e.clientY;
+            startEditorH = editorPanel.getBoundingClientRect().height;
+            divider.setPointerCapture(e.pointerId);
+            divider.classList.add("dragging");
+            e.preventDefault();
+        });
+
+        divider.addEventListener("pointermove", (e: PointerEvent) => {
+            if (!isDragging) return;
+            const dy = e.clientY - startY;
+            const mainH = mainEl.getBoundingClientRect().height;
+            const divH  = divider.offsetHeight;
+            const minH  = 80;
+            const newH  = Math.max(minH, Math.min(mainH - divH - minH, startEditorH + dy));
+            editorHeightPx = newH;
+            editorPanel.style.flex = `0 0 ${newH}px`;
+            editor.resize();
+        });
+
+        divider.addEventListener("pointerup",       stopDrag);
+        divider.addEventListener("pointercancel",   stopDrag);
+        divider.addEventListener("lostpointercapture", stopDrag);
+        window.addEventListener("blur",             stopDrag);
+
+        // Reclamp stored height when the host frame is resized
+        window.addEventListener("resize", () => {
+            if (editorHeightPx === null) return;
+            const mainH = mainEl.getBoundingClientRect().height;
+            const divH  = divider.offsetHeight;
+            const maxH  = mainH - divH - 80;
+            if (editorHeightPx > maxH) {
+                editorHeightPx = Math.max(80, maxH);
+                editorPanel.style.flex = `0 0 ${editorHeightPx}px`;
+            }
+        });
+    }
+
+    function onWindowResize() {
+        editor.resize();
+        table.redraw(true);
+    }
+
+    // ── Status / error helpers ─────────────────────────────────────────
+    function setStatus(text: string) { statusEl.textContent = text; }
+
+    function showError(errText: string) {
         errorBox.style.display = "block";
         errorBox.textContent = errText;
+        editor.resize(); // errorBox pushes editor up; notify Ace
     }
 
     function clearError() {
         errorBox.style.display = "none";
         errorBox.textContent = "";
+        editor.resize();
     }
 
+    // ── Grid population ────────────────────────────────────────────────
     function setGridFromResult(result) {
-        // Expect:
-        // { columns: ["a","b"], rows: [ {a:1,b:"x"}, ... ] } OR rows: [ [1,"x"], ... ]
         const cols = result.columns || [];
-        const rows = result.rows || [];
+        const rows = result.rows    || [];
 
         const tabColumns = cols.map(c => ({
             title: c,
             field: c,
-            headerFilter: true,
             headerSort: true,
             resizable: true
         }));
@@ -124,30 +183,26 @@ WHERE statecode = 0;
         rowsInfo.textContent = `${dataObjects.length} rows`;
     }
 
-    // -----------------------------
-    // Replace this with YOUR execution
-    // -----------------------------
-    async function executeQuery(sqlText) {
-        // Replace with your backend call (fetch/Xrm.WebApi/etc.)
-        // Note: CSP connect-src may block external calls. 【1-d6fba3】
+    // ── Query execution (replace with your backend call) ──────────────
+    async function executeQuery(sqlText: string) {
+        // Replace with fetch / Xrm.WebApi / etc.
 
-        // Demo result (remove):
+        let rows = [];
+
+        for (let i = 0; i < 1000; i++) {
+            rows.push( { accountid: i.toString(), name: `Sample Account ${i}` ,  description: "This is a sample account" })
+        }
+
         return {
             columns: ["accountid", "name", "description"],
-            rows: [
-                { accountid: "1", name: "Sample Account", description: "This is a sample account" },
-                { accountid: "2", name: "Another Account", description: "This is another account" },
-                { accountid: "3", name: "Third Account", description: "This is the third account" }
-            ]
+            rows: rows
         };
     }
 
-    // -----------------------------
-    // Run flow
-    // -----------------------------
+    // ── Run flow ───────────────────────────────────────────────────────
     async function run() {
         clearError();
-        setStatus("Running...");
+        setStatus("Running…");
         (document.getElementById("runBtn") as HTMLButtonElement).disabled = true;
 
         const sqlText = editor.getValue();
@@ -158,8 +213,8 @@ WHERE statecode = 0;
             const t1 = performance.now();
 
             setGridFromResult(result);
-            setStatus(`Success in ${(t1 - t0).toFixed(0)} ms`);
-        } catch (e) {
+            setStatus(`Done in ${(t1 - t0).toFixed(0)} ms`);
+        } catch (e: any) {
             showError(e && e.stack ? e.stack : String(e));
             setStatus("Error");
         } finally {
@@ -168,8 +223,8 @@ WHERE statecode = 0;
     }
 }
 
-document.addEventListener('readystatechange', () => {
-    if (document.readyState == 'complete') {
+document.addEventListener("readystatechange", () => {
+    if (document.readyState === "complete") {
         Sql4CdsApp.SqlEditor.onLoad();
     }
 });

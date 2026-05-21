@@ -6,45 +6,54 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>SQL Editor</title>
 
-    <!-- Tabulator CSS from CDN (Tabulator is MIT licensed) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabulator-tables@6.4.0/dist/css/tabulator.min.css">
-
-  
     <link href="css/sqlEditor.main.css" rel="stylesheet" />
-    <!-- Ace from CDN (Ace is embeddable and supports modes/themes) -->
+
     <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min-noconflict/ace.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min-noconflict/mode-sql.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min-noconflict/theme-sqlserver.js"></script>
-
-    <!-- Tabulator from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/tabulator-tables@6.4.0/dist/js/tabulator.min.js"></script>
 </head>
 
 <body>
     <div id="app">
-        <div id="toolbar">
-            <button class="btn btn-primary" id="runBtn" title="Run (Ctrl+Enter)">Run</button>
-            <button class="btn btn-ghost" id="formatBtn" title="Basic format (simple)">Format</button>
-            <button class="btn btn-ghost" id="clearBtn" title="Clear results">Clear results</button>
 
+        <!-- Fluent UI command bar -->
+        <div id="toolbar">
+            <button class="cmd-btn cmd-btn-primary" id="runBtn" title="Run (Ctrl+Enter)">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 2.5l10 5.5-10 5.5V2.5z"/></svg>
+                Run
+            </button>
+            <div class="cmd-sep"></div>
+            <button class="cmd-btn" id="formatBtn" title="Format SQL">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 3h12v1.5H2zm0 4h8v1.5H2zm0 4h10v1.5H2z"/></svg>
+                Format
+            </button>
+            <button class="cmd-btn" id="clearBtn" title="Clear results">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4.5 3.5L8 7l3.5-3.5 1 1L9 8l3.5 3.5-1 1L8 9l-3.5 3.5-1-1L7 8 3.5 4.5z"/></svg>
+                Clear results
+            </button>
             <div class="spacer"></div>
             <div id="status">Ready</div>
         </div>
 
+        <!-- Editor + resizable divider + results, stacked vertically -->
         <div id="main">
             <div class="panel" id="editorPanel">
-                <div id="editorHeader">
-                    <span>SQL editor</span>
-                    <span style="font-family:ui-monospace,Consolas,monospace">Ctrl+Enter to run</span>
+                <div class="panel-header">
+                    <span class="panel-title">SQL editor</span>
+                    <span class="panel-hint">Ctrl+Enter to run</span>
                 </div>
                 <div id="editor"></div>
                 <div id="errorBox"></div>
             </div>
 
+            <div id="divider" title="Drag to resize"></div>
+
             <div class="panel" id="gridPanel">
-                <div id="gridHeader">
-                    <span>Results</span>
-                    <span id="rowsInfo">0 rows</span>
+                <div class="panel-header">
+                    <span class="panel-title">Results</span>
+                    <span id="rowsInfo" class="panel-hint">0 rows</span>
                 </div>
                 <div id="grid"></div>
             </div>

@@ -1,9 +1,9 @@
 {
 	"compileOnSave": true,
 	"compilerOptions": {
-		"module": "none",
+		"module": "none",		
 		"noImplicitAny": false,
-		"noEmitOnError": true,
+		"noEmitOnError": false,
 		"sourceMap": true,
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,

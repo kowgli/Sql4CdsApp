@@ -1,3 +1,4 @@
+"use strict";
 /// <reference path="../../../node_modules/@types/ace/index.d.ts" />
 /// <reference path="../../../node_modules/@types/tabulator/index.d.ts" />
 var Sql4CdsApp;
@@ -7,9 +8,7 @@ var Sql4CdsApp;
         let editor;
         let table, statusEl, errorBox, rowsInfo;
         function onLoad() {
-            // -----------------------------
-            // Ace setup (SQL)
-            // -----------------------------
+            // ── Ace setup ──────────────────────────────────────────────────
             editor = ace.edit("editor");
             editor.session.setMode("ace/mode/sql");
             editor.setTheme("ace/theme/sqlserver");
@@ -32,9 +31,7 @@ WHERE statecode = 0;
                 bindKey: { win: "Ctrl-Enter", mac: "Command-Enter" },
                 exec: () => run()
             });
-            // -----------------------------
-            // Tabulator setup (grid)
-            // -----------------------------
+            // ── Tabulator setup ────────────────────────────────────────────
             table = new Tabulator("#grid", {
                 layout: "fitDataFill",
                 placeholder: "No results yet",
@@ -42,16 +39,11 @@ WHERE statecode = 0;
                 selectable: true,
                 clipboard: true
             });
-            // -----------------------------
-            // UI helpers
-            // -----------------------------
+            // ── UI helpers ─────────────────────────────────────────────────
             statusEl = document.getElementById("status");
             errorBox = document.getElementById("errorBox");
             rowsInfo = document.getElementById("rowsInfo");
-            //-----------------------------
-            // Events
-            //-----------------------------
-            // Toolbar
+            // ── Toolbar events ─────────────────────────────────────────────
             document.getElementById("runBtn").addEventListener("click", run);
             document.getElementById("clearBtn").addEventListener("click", () => {
                 table.clearData();
@@ -61,7 +53,6 @@ WHERE statecode = 0;
                 clearError();
             });
             document.getElementById("formatBtn").addEventListener("click", () => {
-                // Very simple formatter to keep it drop-in
                 const s = editor.getValue()
                     .replace(/\t/g, "  ")
                     .replace(/[ \t]+$/gm, "")
@@ -69,26 +60,89 @@ WHERE statecode = 0;
                 editor.setValue(s + "\n", -1);
                 setStatus("Formatted");
             });
+            // ── Divider drag ───────────────────────────────────────────────
+            setupDivider();
+            // ── Window resize: reclamp and redraw ──────────────────────────
+            window.addEventListener("resize", onWindowResize);
         }
         SqlEditor.onLoad = onLoad;
+        // ── Divider / splitter ─────────────────────────────────────────────
+        function setupDivider() {
+            const divider = document.getElementById("divider");
+            const editorPanel = document.getElementById("editorPanel");
+            const mainEl = document.getElementById("main");
+            let isDragging = false;
+            let startY = 0;
+            let startEditorH = 0;
+            let editorHeightPx = null; // null → flex layout
+            function stopDrag() {
+                if (!isDragging)
+                    return;
+                isDragging = false;
+                divider.classList.remove("dragging");
+                editor.resize();
+                table.redraw(true);
+            }
+            divider.addEventListener("pointerdown", (e) => {
+                isDragging = true;
+                startY = e.clientY;
+                startEditorH = editorPanel.getBoundingClientRect().height;
+                divider.setPointerCapture(e.pointerId);
+                divider.classList.add("dragging");
+                e.preventDefault();
+            });
+            divider.addEventListener("pointermove", (e) => {
+                if (!isDragging)
+                    return;
+                const dy = e.clientY - startY;
+                const mainH = mainEl.getBoundingClientRect().height;
+                const divH = divider.offsetHeight;
+                const minH = 80;
+                const newH = Math.max(minH, Math.min(mainH - divH - minH, startEditorH + dy));
+                editorHeightPx = newH;
+                editorPanel.style.flex = `0 0 ${newH}px`;
+                editor.resize();
+            });
+            divider.addEventListener("pointerup", stopDrag);
+            divider.addEventListener("pointercancel", stopDrag);
+            divider.addEventListener("lostpointercapture", stopDrag);
+            window.addEventListener("blur", stopDrag);
+            // Reclamp stored height when the host frame is resized
+            window.addEventListener("resize", () => {
+                if (editorHeightPx === null)
+                    return;
+                const mainH = mainEl.getBoundingClientRect().height;
+                const divH = divider.offsetHeight;
+                const maxH = mainH - divH - 80;
+                if (editorHeightPx > maxH) {
+                    editorHeightPx = Math.max(80, maxH);
+                    editorPanel.style.flex = `0 0 ${editorHeightPx}px`;
+                }
+            });
+        }
+        function onWindowResize() {
+            editor.resize();
+            table.redraw(true);
+        }
+        // ── Status / error helpers ─────────────────────────────────────────
         function setStatus(text) { statusEl.textContent = text; }
         function showError(errText) {
             errorBox.style.display = "block";
             errorBox.textContent = errText;
+            editor.resize(); // errorBox pushes editor up; notify Ace
         }
         function clearError() {
             errorBox.style.display = "none";
             errorBox.textContent = "";
+            editor.resize();
         }
+        // ── Grid population ────────────────────────────────────────────────
         function setGridFromResult(result) {
-            // Expect:
-            // { columns: ["a","b"], rows: [ {a:1,b:"x"}, ... ] } OR rows: [ [1,"x"], ... ]
             const cols = result.columns || [];
             const rows = result.rows || [];
             const tabColumns = cols.map(c => ({
                 title: c,
                 field: c,
-                headerFilter: true,
                 headerSort: true,
                 resizable: true
             }));
@@ -107,28 +161,22 @@ WHERE statecode = 0;
             table.setData(dataObjects);
             rowsInfo.textContent = `${dataObjects.length} rows`;
         }
-        // -----------------------------
-        // Replace this with YOUR execution
-        // -----------------------------
+        // ── Query execution (replace with your backend call) ──────────────
         async function executeQuery(sqlText) {
-            // Replace with your backend call (fetch/Xrm.WebApi/etc.)
-            // Note: CSP connect-src may block external calls. 【1-d6fba3】
-            // Demo result (remove):
+            // Replace with fetch / Xrm.WebApi / etc.
+            let rows = [];
+            for (let i = 0; i < 1000; i++) {
+                rows.push({ accountid: i.toString(), name: `Sample Account ${i}`, description: "This is a sample account" });
+            }
             return {
                 columns: ["accountid", "name", "description"],
-                rows: [
-                    { accountid: "1", name: "Sample Account", description: "This is a sample account" },
-                    { accountid: "2", name: "Another Account", description: "This is another account" },
-                    { accountid: "3", name: "Third Account", description: "This is the third account" }
-                ]
+                rows: rows
             };
         }
-        // -----------------------------
-        // Run flow
-        // -----------------------------
+        // ── Run flow ───────────────────────────────────────────────────────
         async function run() {
             clearError();
-            setStatus("Running...");
+            setStatus("Running…");
             document.getElementById("runBtn").disabled = true;
             const sqlText = editor.getValue();
             try {
@@ -136,7 +184,7 @@ WHERE statecode = 0;
                 const result = await executeQuery(sqlText);
                 const t1 = performance.now();
                 setGridFromResult(result);
-                setStatus(`Success in ${(t1 - t0).toFixed(0)} ms`);
+                setStatus(`Done in ${(t1 - t0).toFixed(0)} ms`);
             }
             catch (e) {
                 showError(e && e.stack ? e.stack : String(e));
@@ -148,8 +196,8 @@ WHERE statecode = 0;
         }
     })(SqlEditor = Sql4CdsApp.SqlEditor || (Sql4CdsApp.SqlEditor = {}));
 })(Sql4CdsApp || (Sql4CdsApp = {}));
-document.addEventListener('readystatechange', () => {
-    if (document.readyState == 'complete') {
+document.addEventListener("readystatechange", () => {
+    if (document.readyState === "complete") {
         Sql4CdsApp.SqlEditor.onLoad();
     }
 });

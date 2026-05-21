@@ -1,6 +1,6 @@
 # Copilot Instructions for Sql4CdsApp
 
-This is a **Dynamics 365 / Dataverse (CRM) plugin application** scaffold using a CQS (Command-Query Separation) pattern. It supports plugins, workflow activities, a scheduled-job runner, and TypeScript web resources.
+This is a **Dataverse plugin and web resource wrapper around [Sql4Cds](https://github.com/MarkMpn/Sql4Cds)**, enabling users to run SQL queries against Dataverse directly from a model-driven app web UI. It exposes a TypeScript-based SQL editor as a web resource and uses Dataverse plugins to execute queries server-side via the Sql4Cds engine. The project follows a CQS (Command-Query Separation) pattern and supports plugins, workflow activities, a scheduled-job runner, and TypeScript web resources.
 
 ---
 
