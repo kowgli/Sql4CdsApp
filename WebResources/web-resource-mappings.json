@@ -1,6 +1,5 @@
 {
-  //"connectionString": "VaultUrl=https://crmdev365.vault.azure.net/; Key=DevCrm",
-  "connectionString": "******",
+  "connectionString": "VaultUrl=https://crmdev365vault.vault.azure.net/; Key=DevCrmOrg; TenantId=a3313b36-7e2a-44a7-a4ba-03a2e5e15489",
   "mappings": [
     {
       "source": "extensions/sqlEditor/sqlEditor.html",
@@ -13,6 +12,10 @@
     {
       "source": "extensions/sqlEditor/js/sqlEditor.bundle.js",
       "target": "cd365_/extensions/sqlEditor/js/sqlEditor.bundle.js"
+    },
+    {
+      "source": "img/sql.svg",
+      "target": "cd365_/img/sql.svg"
     }
   ]
 }

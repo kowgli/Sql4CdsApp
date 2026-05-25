@@ -124,6 +124,7 @@
         ValidateRecurrenceRule,
         Win,
         // Add custom events here        
+        cd365_ExecSql
     }
 
     public enum ImageType

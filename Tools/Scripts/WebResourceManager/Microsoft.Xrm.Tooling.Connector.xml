@@ -290,6 +290,16 @@
             Guid Type - Converts from a Guid Type
             </summary>
         </member>
+        <member name="F:Microsoft.Xrm.Tooling.Connector.CrmFieldType.Image">
+            <summary>
+            Use image columns to display a single image per row in the application
+            </summary>
+        </member>
+        <member name="F:Microsoft.Xrm.Tooling.Connector.CrmFieldType.File">
+            <summary>
+            The File column is used for storing binary data
+            </summary>
+        </member>
         <member name="F:Microsoft.Xrm.Tooling.Connector.CrmFieldType.Raw">
             <summary>
             User Specified type... will be appended directly. This type must be one of the valid CRM 2011 types
@@ -1002,6 +1012,25 @@
             <param name="clientCredentials">Credentials passed for creating a connection, username only is honored.</param>
             <returns>Authentication result with the access token for the authenticated connection</returns>
         </member>
+        <member name="M:Microsoft.Xrm.Tooling.Connector.CrmWebSvc.DiscoverOrganizations(System.Uri,System.ServiceModel.Description.ClientCredentials,Microsoft.IdentityModel.Clients.ActiveDirectory.UserIdentifier,System.String,System.Uri,Microsoft.IdentityModel.Clients.ActiveDirectory.PromptBehavior,System.String,System.Boolean,System.String,Microsoft.IdentityModel.Clients.ActiveDirectory.UserIdentifier@,Microsoft.Xrm.Tooling.Connector.CrmLogEntry,System.Boolean,System.Boolean)">
+            <summary>
+            Discovers the organizations (OAuth Specific)
+            </summary>
+            <param name="discoveryServiceUri">The discovery service uri.</param>
+            <param name="clientCredentials">The client credentials.</param>
+            <param name="user">The user identifier.</param>
+            <param name="clientId">The client id of registered Azure app.</param>
+            <param name="redirectUri">The redirect uri.</param>
+            <param name="promptBehavior">The prompt behavior for ADAL library.</param>
+            <param name="tokenCachePath">The token cache path.</param>
+            <param name="isOnPrem">Determines whether onprem or </param>
+            <param name="authority">The authority identifying the registered tenant</param>
+            <param name="logSink">(optional) Initialized CrmLogEntry Object</param>
+            <param name="useGlobalDisco">Use the global disco path. </param>
+            <param name="useDefaultCreds">(optional) If true attempts login using current user</param>
+            <param name="userOut">returns the user identifier</param>
+            <returns>The list of organizations discovered.</returns>
+        </member>
         <member name="M:Microsoft.Xrm.Tooling.Connector.CrmWebSvc.DiscoverOrganizations(System.Uri,System.ServiceModel.Description.ClientCredentials,Microsoft.IdentityModel.Clients.ActiveDirectory.UserIdentifier,System.String,System.Uri,Microsoft.IdentityModel.Clients.ActiveDirectory.PromptBehavior,System.String,System.Boolean,System.String,Microsoft.Xrm.Tooling.Connector.CrmLogEntry,System.Boolean,System.Boolean)">
             <summary>
             Discovers the organizations (OAuth Specific)
@@ -1052,7 +1081,7 @@
             <param name="useDefaultCreds">(optional) If true, tries to login with current users credentials</param>
             <returns>The list of organizations discovered.</returns>
         </member>
-        <member name="M:Microsoft.Xrm.Tooling.Connector.CrmWebSvc.DiscoverGlobalOrganizations(System.Uri,System.ServiceModel.Description.ClientCredentials,System.Security.Cryptography.X509Certificates.X509Certificate2,Microsoft.IdentityModel.Clients.ActiveDirectory.UserIdentifier,System.String,System.Uri,Microsoft.IdentityModel.Clients.ActiveDirectory.PromptBehavior,System.String,System.Boolean,System.String,Microsoft.Xrm.Tooling.Connector.CrmLogEntry,System.Boolean,System.Boolean)">
+        <member name="M:Microsoft.Xrm.Tooling.Connector.CrmWebSvc.DiscoverGlobalOrganizations(System.Uri,System.ServiceModel.Description.ClientCredentials,System.Security.Cryptography.X509Certificates.X509Certificate2,Microsoft.IdentityModel.Clients.ActiveDirectory.UserIdentifier,System.String,System.Uri,Microsoft.IdentityModel.Clients.ActiveDirectory.PromptBehavior,System.String,System.Boolean,System.String,Microsoft.IdentityModel.Clients.ActiveDirectory.UserIdentifier@,Microsoft.Xrm.Tooling.Connector.CrmLogEntry,System.Boolean,System.Boolean)">
             <summary>
             Discovers the organizations (OAuth Specific)
             </summary>
@@ -1069,6 +1098,7 @@
             <param name="logSink">(optional) Initialized CrmLogEntry Object</param>
             <param name="useGlobalDisco">(optional) utilize Global discovery service</param>
             <param name="useDefaultCreds">(optional) if true, attempts login with the current users credentials</param>
+            <param name="userOut">returns the user identifier</param>
             <returns>The list of organizations discovered.</returns>
         </member>
         <member name="M:Microsoft.Xrm.Tooling.Connector.CrmWebSvc.QueryGlobalDiscovery(System.String,System.Uri,Microsoft.Xrm.Tooling.Connector.CrmLogEntry)">
@@ -1967,6 +1997,23 @@
             <param name="useDefaultCreds">(Optional) if specified, tries to use the current user</param>
             <returns>A collection of organizations</returns>
         </member>
+        <member name="M:Microsoft.Xrm.Tooling.Connector.CrmServiceClient.DiscoverGlobalOrganizations(System.Uri,System.ServiceModel.Description.ClientCredentials,Microsoft.IdentityModel.Clients.ActiveDirectory.UserIdentifier,System.String,System.Uri,System.String,System.Boolean,System.String,Microsoft.IdentityModel.Clients.ActiveDirectory.UserIdentifier@,Microsoft.IdentityModel.Clients.ActiveDirectory.PromptBehavior,System.Boolean)">
+            <summary>
+            Discovers the organizations, used for OAuth.
+            </summary>
+            <param name="discoveryServiceUri">The discovery service URI.</param>
+            <param name="clientCredentials">The client credentials.</param>
+            <param name="user">The user identifier.</param>
+            <param name="clientId">The client Id.</param>
+            <param name="redirectUri">The redirect uri.</param>
+            <param name="promptBehavior">The prompt behavior.</param>
+            <param name="tokenCachePath">The token cache path where token cache file is placed.</param>
+            <param name="isOnPrem">The deployment type: OnPrem or Online.</param>
+            <param name="authority">The authority provider for OAuth tokens. Unique if any already known.</param>
+            <param name="useDefaultCreds">(Optional) if specified, tries to use the current user</param>
+            <param name="foundUser">User ID found from Login process</param>
+            <returns>A collection of organizations</returns>
+        </member>
         <member name="M:Microsoft.Xrm.Tooling.Connector.CrmServiceClient.DiscoverOrganizations(System.Uri,System.Uri,System.ServiceModel.Description.ClientCredentials,System.ServiceModel.Description.ClientCredentials)">
             <summary>
             Discovers the organizations.
@@ -2396,6 +2443,30 @@
             <param name="extraParameters">Extra parameters</param>
             <returns>Returns the Async Job ID.  To find the status of the job, query the AsyncOperation Entity using GetEntityDataByID using the returned value of this method</returns>
         </member>
+        <member name="M:Microsoft.Xrm.Tooling.Connector.CrmServiceClient.ImportSolutionAsync(System.Guid,System.Guid@,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Import Solution Async used Execute Async pattern to run a solution import.
+            </summary>
+            <param name="activatePlugIns">Activate Plugin's and workflows on the Solution </param>
+            <param name="importId"><para>This will populate with the Import ID even if the request failed.
+            You can use this ID to request status on the import via a request to the ImportJob entity.</para></param>
+            <param name="StageSolutionUploadId">Staged Solution Upload Id, created from Stage Solution.</param>
+            <param name="overwriteUnManagedCustomizations">Forces an overwrite of unmanaged customizations of the managed solution you are installing, defaults to false</param>
+            <param name="skipDependancyOnProductUpdateCheckOnInstall">Skips dependency against dependencies flagged as product update, defaults to false</param>
+            <param name="importAsHoldingSolution">Applies only on Dataverse organizations version 7.2 or higher.  This imports the Dataverse solution as a holding solution utilizing the “As Holding” capability of ImportSolution </param>
+            <param name="isInternalUpgrade">Internal Microsoft use only</param>
+            <param name="extraParameters">Extra parameters</param>
+            <returns>Returns the Async Job ID.  To find the status of the job, query the AsyncOperation Entity using GetEntityDataByID using the returned value of this method</returns>
+        </member>
+        <member name="M:Microsoft.Xrm.Tooling.Connector.CrmServiceClient.StageSolution(System.String,System.IO.MemoryStream)">
+            <summary>
+            Stages a solution for Import. <see href="https://learn.microsoft.com/power-platform/alm/solution-async#staging-a-solution"/>
+            A solution path or stream containing a solution is required to use this. 
+            </summary>
+            <param name="solutionPath">Path to the solution</param>
+            <param name="solutionStream">memory stream containing the solution file to be staged.</param>
+            <returns>StageSolutionResults, <see cref="T:Microsoft.Xrm.Sdk.StageSolutionResults"/></returns>
+        </member>
         <member name="M:Microsoft.Xrm.Tooling.Connector.CrmServiceClient.ImportSolutionToCrm(System.String,System.Guid@,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.Object})">
             <summary>
             <para>
@@ -2410,6 +2481,23 @@
             <param name="overwriteUnManagedCustomizations">Forces an overwrite of unmanaged customizations of the managed solution you are installing, defaults to false</param>
             <param name="skipDependancyOnProductUpdateCheckOnInstall">Skips dependency against dependencies flagged as product update, defaults to false</param>
             <param name="importAsHoldingSolution">Applies only on CRM organizations version 7.2 or higher.  This imports the CRM solution as a holding solution utilizing the “As Holding” capability of ImportSolution </param>
+            <param name="isInternalUpgrade">Internal Microsoft use only</param>
+            <param name="extraParameters">Extra parameters</param>
+        </member>
+        <member name="M:Microsoft.Xrm.Tooling.Connector.CrmServiceClient.ImportSolutionToCrm(System.Guid,System.Guid@,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            <para>
+            Imports a Dataverse solution to the Dataverse Server currently connected.
+            <para>*** Note: this is a blocking call and will take time to Import to Dataverse ***</para>
+            </para>
+            </summary>
+            <param name="StageSolutionUploadId">Staged Solution Upload Id, created from Stage Solution.</param>
+            <param name="activatePlugIns">Activate Plugin's and workflows on the Solution </param>
+            <param name="importId"><para>This will populate with the Import ID even if the request failed.
+            You can use this ID to request status on the import via a request to the ImportJob entity.</para></param>
+            <param name="overwriteUnManagedCustomizations">Forces an overwrite of unmanaged customizations of the managed solution you are installing, defaults to false</param>
+            <param name="skipDependancyOnProductUpdateCheckOnInstall">Skips dependency against dependencies flagged as product update, defaults to false</param>
+            <param name="importAsHoldingSolution">Applies only on Dataverse organizations version 7.2 or higher.  This imports the Dataverse solution as a holding solution utilizing the “As Holding” capability of ImportSolution </param>
             <param name="isInternalUpgrade">Internal Microsoft use only</param>
             <param name="extraParameters">Extra parameters</param>
         </member>
@@ -2867,7 +2955,7 @@
             <param name="logMessageTag">Message identifying what this request in logging</param>
             <returns>True on success, False on fail. </returns>
         </member>
-        <member name="M:Microsoft.Xrm.Tooling.Connector.CrmServiceClient.ImportSolutionToCrmImpl(System.String,System.Guid@,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.Object})">
+        <member name="M:Microsoft.Xrm.Tooling.Connector.CrmServiceClient.ImportSolutionToCrmImpl(System.String,System.Guid,System.Guid@,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.Object})">
             <summary>
             <para>
             Imports a CRM solution to the CRM Server currently connected.
@@ -2884,6 +2972,7 @@
             <param name="isInternalUpgrade">Internal Microsoft use only</param>
             <param name="useAsync">Requires the use of an Async Job to do the import. </param>
             <param name="extraParameters">Extra parameters</param>
+            <param name="stageSolutionUploadId">Upload ID for Solution that has been staged</param>
             <returns>Returns the Import Solution Job ID.  To find the status of the job, query the ImportJob Entity using GetEntityDataByID using the returned value of this method</returns>
         </member>
         <member name="M:Microsoft.Xrm.Tooling.Connector.CrmServiceClient.CrmCommand_Execute(Microsoft.Xrm.Sdk.OrganizationRequest,System.String)">
@@ -4907,6 +4996,11 @@
             Internal use only
             </summary>
         </member>
+        <member name="F:Microsoft.Xrm.Tooling.Connector.ImportSolutionProperties.USESTAGEANDUPGRADEMODE">
+            <summary>
+            When set to true, causes ImportSolution process to use the Stage and Upgrade Process. 
+            </summary>
+        </member>
         <member name="T:Microsoft.Xrm.Tooling.Connector.IOverrideAuthHookWrapper">
             <summary>
             
@@ -5129,6 +5223,11 @@
         <member name="F:Microsoft.Xrm.Tooling.Connector.Utilities.CDSFeatureVersionMinimums.AllowImportSolutionAsyncV2">
             <summary>
             Minimum version support for ImportSolutionAsync API.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Xrm.Tooling.Connector.Utilities.CDSFeatureVersionMinimums.AllowStageAndUpgrade">
+            <summary>
+            Minimum version support for StageAndUpgrade API.
             </summary>
         </member>
         <member name="T:Microsoft.Xrm.Tooling.Connector.XmlUtil">

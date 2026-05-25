@@ -307,6 +307,47 @@
             Defines interface of a service that can be used to wait for entity modification events.
             </summary>
         </member>
+        <member name="T:Microsoft.Xrm.Sdk.Workflow.StopWorkflowException">
+            <summary>
+            Exception used by StopWorkflow activity to interrupt execution of the workflow.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Xrm.Sdk.Workflow.StopWorkflowException.#ctor(Microsoft.Xrm.Sdk.Workflow.XrmWorkflowCompletionStatus,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Xrm.Sdk.Workflow.StopWorkflowException"/> class.
+            </summary>
+            <param name="status">Status of workflow instance after executing StopWorkflow activity.</param>
+        </member>
+        <member name="M:Microsoft.Xrm.Sdk.Workflow.StopWorkflowException.#ctor(Microsoft.Xrm.Sdk.Workflow.XrmWorkflowCompletionStatus,System.Int32,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Xrm.Sdk.Workflow.StopWorkflowException"/> class.
+            </summary>
+            <param name="status">Status of workflow instance to report </param>
+            <param name="errorCode">Crm error code</param>
+            <param name="message">error or status message</param>
+        </member>
+        <member name="M:Microsoft.Xrm.Sdk.Workflow.StopWorkflowException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Xrm.Sdk.Workflow.StopWorkflowException"/> class.
+            </summary>
+            <param name="message">error or status message</param>
+            <param name="innerException">innerException details</param>
+        </member>
+        <member name="P:Microsoft.Xrm.Sdk.Workflow.StopWorkflowException.Status">
+            <summary>
+            Gets status of workflow instance after executing StopWorkflow activity.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Xrm.Sdk.Workflow.StopWorkflowException.ErrorCode">
+            <summary>
+            Get the error code associated with the exception
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.Workflow.XrmWorkflowCompletionStatus">
+            <summary>
+            Status of workflow instance after executing StopWorkflow activity.
+            </summary>
+        </member>
         <!-- Badly formed XML comment ignored for member "T:Microsoft.Xrm.Sdk.Workflow.WorkflowArgument" -->
         <member name="T:Microsoft.Xrm.Sdk.Workflow.WorkflowDependencyType">
             <summary>

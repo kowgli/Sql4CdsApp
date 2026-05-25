@@ -1,4 +1,3 @@
-"use strict";
 var XRM;
 (function (XRM) {
     var Libs;

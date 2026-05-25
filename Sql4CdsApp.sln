@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.6.11806.211 stable
+VisualStudioVersion = 18.6.11806.211
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xrm.Domain", "Xrm.Domain\Xrm.Domain.csproj", "{0C9B7F6F-9E1C-49D0-B802-16143AB05529}"
 EndProject
@@ -16,8 +16,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{E26010C3-AB27-4D91-A939-2120969C39E5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowVisualizer", "Tools\FlowVisualizer\FlowVisualizer.csproj", "{0272C836-FE6C-4249-933C-3B9775E8B998}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xrm.WorkflowActivities", "Xrm.WorkflowActivities\Xrm.WorkflowActivities.csproj", "{526E9B4E-AC35-4CBF-A6F1-451076C3D9AD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{1F7F0021-DF6A-4E6B-AF12-A07D5A52A30D}"
 EndProject
@@ -54,6 +52,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		LICENSE.txt = LICENSE.txt
 		README.md = README.md
+		todo.txt = todo.txt
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xrm.Plugin.Base", "Xrm.Plugin.Base\Xrm.Plugin.Base.csproj", "{AF06EDCA-56B6-475E-83A2-B538A711B50E}"
@@ -94,10 +93,6 @@ Global
 		{0272C836-FE6C-4249-933C-3B9775E8B998}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0272C836-FE6C-4249-933C-3B9775E8B998}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0272C836-FE6C-4249-933C-3B9775E8B998}.Release|Any CPU.Build.0 = Release|Any CPU
-		{526E9B4E-AC35-4CBF-A6F1-451076C3D9AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{526E9B4E-AC35-4CBF-A6F1-451076C3D9AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{526E9B4E-AC35-4CBF-A6F1-451076C3D9AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{526E9B4E-AC35-4CBF-A6F1-451076C3D9AD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1B6F3C61-DBFB-44F4-B28C-DEAFACC4F0EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1B6F3C61-DBFB-44F4-B28C-DEAFACC4F0EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B6F3C61-DBFB-44F4-B28C-DEAFACC4F0EF}.Release|Any CPU.ActiveCfg = Release|Any CPU

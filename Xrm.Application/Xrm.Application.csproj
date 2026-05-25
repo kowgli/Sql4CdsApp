@@ -38,6 +38,9 @@
     <AssemblyOriginatorKeyFile>Xrm.Application.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MarkMpn.Sql4Cds.Engine">
+      <HintPath>..\..\Sql4Cds\MarkMpn.Sql4Cds.Engine\bin\Release\net462\MarkMpn.Sql4Cds.Engine.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.6.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
@@ -104,7 +107,7 @@
     <Compile Include="Base\EventHandler.cs" />
     <Compile Include="Base\VoidEvent.cs" />
     <Compile Include="Base\Locator.cs" />
-    <Compile Include="Commands\Accounts\SampleCommand.cs" />
+    <Compile Include="Commands\ExecSql.cs" />
     <Compile Include="Helpers\CrmHelper.cs" />
     <Compile Include="Helpers\CrmUlrParser.cs" />
     <Compile Include="Helpers\EntityExtensions.cs" />

@@ -1,0 +1,2 @@
+- Add attributions
+- incl. https://www.svgrepo.com/svg/13344/sql-file-format

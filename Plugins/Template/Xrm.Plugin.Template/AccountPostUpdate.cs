@@ -1,5 +1,4 @@
-﻿using Xrm.Application.Commands.Accounts;
-using Xrm.Domain.Crm;
+﻿using Xrm.Domain.Crm;
 using Xrm.Plugin.Base;
 
 namespace Xrm.Plugin.Template
@@ -19,7 +18,7 @@ namespace Xrm.Plugin.Template
         {
             Account target = localContext.GetTarget().ToEntity<Account>();
 
-            localContext.Handle(new SampleCommand { Target = target, ExecutionContext = localContext.PluginExecutionContext });
+            //localContext.Handle(new SampleCommand { Target = target, ExecutionContext = localContext.PluginExecutionContext });
         }
     }
 }

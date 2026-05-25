@@ -109,9 +109,56 @@
             Response Type for RetrieveFeatureControlSettings API
             </summary>
         </member>
+        <member name="M:Microsoft.Crm.Sdk.Messages.FeatureControlSettingCollection.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Crm.Sdk.Messages.FeatureControlSettingCollection"/> class.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Crm.Sdk.Messages.FeatureControlSettingCollection.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Crm.Sdk.Messages.FeatureControlSettingCollection"/> class.
+            </summary>
+            <param name="capacity">The number of elements that the inner list can initially store.</param>
+        </member>
         <member name="P:Microsoft.Crm.Sdk.Messages.FeatureControlSettingCollection.ExtensionData">
             <summary>
             Gets or sets Extension Data
+            </summary>
+        </member>
+        <member name="T:Microsoft.Crm.Sdk.Messages.FeatureControlSettingData">
+            <summary>
+            The response payload associated with RetrieveFeatureControlSetting and RetrieveFeatureControlSettings
+            </summary>
+            <remarks>
+            NOTE: because System.RuntimeType is no longer marked [Serializable] in netcore (.NET, net8+, etc.),
+            APIs that consume FeatureControlSettingData must be deprecated and replaced by cross-compatible APIs.
+            See FeatureControlStringSettingData and FeatureControlStringSettingCollection.
+            </remarks>
+        </member>
+        <member name="T:Microsoft.Crm.Sdk.Messages.FeatureControlStringSettingCollection">
+            <summary>
+            Response Type for RetrieveFeatureControlStringSettings API
+            </summary>
+        </member>
+        <member name="M:Microsoft.Crm.Sdk.Messages.FeatureControlStringSettingCollection.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Crm.Sdk.Messages.FeatureControlStringSettingCollection"/> class.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Crm.Sdk.Messages.FeatureControlStringSettingCollection.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Crm.Sdk.Messages.FeatureControlStringSettingCollection"/> class.
+            </summary>
+            <param name="capacity">The number of elements that the inner list can initially store.</param>
+        </member>
+        <member name="P:Microsoft.Crm.Sdk.Messages.FeatureControlStringSettingCollection.ExtensionData">
+            <summary>
+            Gets or sets Extension Data
+            </summary>
+        </member>
+        <member name="T:Microsoft.Crm.Sdk.Messages.FeatureControlStringSettingData">
+            <summary>
+            Response Type for RetrieveFeatureControlStringSetting API
             </summary>
         </member>
         <member name="P:Microsoft.Crm.Sdk.Messages.FormDisplayOrderCollection.formDisplayOrderCollection">
@@ -1832,6 +1879,31 @@
         <member name="P:Microsoft.Crm.Sdk.Messages.TraceInfo.ErrorInfoList">
             <summary>
             Get error information list of ErrorInfo class. 
+            </summary>
+        </member>
+        <member name="P:Microsoft.Crm.Sdk.Messages.IPFirewallAccessAuditDetail.IPAddress">
+            <summary>
+            User IPAddress
+            </summary>
+        </member>
+        <member name="P:Microsoft.Crm.Sdk.Messages.IPFirewallAccessAuditDetail.UserID">
+            <summary>
+            User's systemuserid.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Crm.Sdk.Messages.ApplicationBasedAccessControlAuditDetail.ApplicationId">
+            <summary>
+            ApplicationId
+            </summary>
+        </member>
+        <member name="P:Microsoft.Crm.Sdk.Messages.ApplicationBasedAccessControlAuditDetail.UserID">
+            <summary>
+            SystemUserId
+            </summary>
+        </member>
+        <member name="P:Microsoft.Crm.Sdk.Messages.ApplicationBasedAccessControlAuditDetail.ImpersonatedUserId">
+            <summary>
+            Impersonated UserId
             </summary>
         </member>
         <member name="T:Microsoft.Crm.Sdk.Messages.ValidationResult">

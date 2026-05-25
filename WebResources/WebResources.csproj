@@ -6,14 +6,6 @@
     <AssemblyName>WebResources</AssemblyName>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="img\**" />
-    <Content Remove="img\**" />
-    <EmbeddedResource Remove="img\**" />
-    <None Remove="img\**" />
-    <TypeScriptCompile Remove="img\**" />
-  </ItemGroup>
-
   <ItemGroup>    
     <TypeScriptCompile Remove="libs\ext\alert.ts" />
   </ItemGroup>
@@ -27,6 +19,7 @@
 
   <ItemGroup>    
     <Folder Include="forms\" />    
+    <Folder Include="img\" />    
     <Folder Include="libs\ext\select2\" />
   </ItemGroup>
 

@@ -1,6 +1,5 @@
 ﻿using CCP;
 using CCP.Attributes;
-using Xrm.Application.Commands.Accounts;
 
 namespace Xrm.Runner.Jobs
 {
@@ -13,7 +12,7 @@ namespace Xrm.Runner.Jobs
         {
             TracingService.Trace($"Running {nameof(SampleJob)} with TestParameter={TestParameter}");
 
-            Handle(new SampleCommand());
+            //Handle(new SampleCommand());
         }
     }
 }

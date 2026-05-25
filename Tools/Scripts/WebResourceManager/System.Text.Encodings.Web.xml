@@ -78,11 +78,6 @@
       <exception cref="T:System.ArgumentOutOfRangeException">
         <paramref name="characterCount" /> is out of range.</exception>
     </member>
-    <member name="M:System.Text.Encodings.Web.TextEncoder.Encode(System.IO.TextWriter,System.String)">
-      <summary>Encodes the specified string to a <see cref="T:System.IO.TextWriter" /> object.</summary>
-      <param name="output">The stream to which to write the encoded text.</param>
-      <param name="value">The string to encode.</param>
-    </member>
     <member name="M:System.Text.Encodings.Web.TextEncoder.Encode(System.IO.TextWriter,System.String,System.Int32,System.Int32)">
       <summary>Encodes a substring and writes it to a <see cref="T:System.IO.TextWriter" /> object.</summary>
       <param name="output">The stream to which to write the encoded text.</param>
@@ -98,6 +93,11 @@
         <paramref name="startIndex" /> is out of range.</exception>
       <exception cref="T:System.ArgumentOutOfRangeException">
         <paramref name="characterCount" /> is out of range.</exception>
+    </member>
+    <member name="M:System.Text.Encodings.Web.TextEncoder.Encode(System.IO.TextWriter,System.String)">
+      <summary>Encodes the specified string to a <see cref="T:System.IO.TextWriter" /> object.</summary>
+      <param name="output">The stream to which to write the encoded text.</param>
+      <param name="value">The string to encode.</param>
     </member>
     <member name="M:System.Text.Encodings.Web.TextEncoder.Encode(System.ReadOnlySpan{System.Char},System.Span{System.Char},System.Int32@,System.Int32@,System.Boolean)">
       <summary>Encodes the supplied characters.</summary>
@@ -339,8 +339,8 @@
       <returns>The Bamum Unicode block (U+A6A0-U+A6FF).</returns>
     </member>
     <member name="P:System.Text.Unicode.UnicodeRanges.BasicLatin">
-      <summary>Gets the Basic Latin Unicode block (U+0021-U+007F).</summary>
-      <returns>The Basic Latin Unicode block (U+0021-U+007F).</returns>
+      <summary>Gets the Basic Latin Unicode block (U+0000-U+007F).</summary>
+      <returns>The Basic Latin Unicode block (U+0000-U+007F).</returns>
     </member>
     <member name="P:System.Text.Unicode.UnicodeRanges.Batak">
       <summary>Gets the Batak Unicode block (U+1BC0-U+1BFF).</summary>
@@ -637,8 +637,8 @@
       <returns>The Lao Unicode block (U+0E80-U+0EDF).</returns>
     </member>
     <member name="P:System.Text.Unicode.UnicodeRanges.Latin1Supplement">
-      <summary>Gets the Latin-1 Supplement Unicode block (U+00A1-U+00FF).</summary>
-      <returns>The Latin-1 Supplement Unicode block (U+00A1-U+00FF).</returns>
+      <summary>Gets the Latin-1 Supplement Unicode block (U+0080-U+00FF).</summary>
+      <returns>The Latin-1 Supplement Unicode block (U+0080-U+00FF).</returns>
     </member>
     <member name="P:System.Text.Unicode.UnicodeRanges.LatinExtendedA">
       <summary>Gets the Latin Extended-A Unicode block (U+0100-U+017F).</summary>

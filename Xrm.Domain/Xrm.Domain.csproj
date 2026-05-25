@@ -100,6 +100,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\InUserContextAttribute.cs" />
+    <Compile Include="Attributes\OutputAttribute.cs" />
     <Compile Include="Configuration\Settings.cs" />
     <Compile Include="Crm\OptionSetValueCollection.cs" />
     <Compile Include="Crm\OrganizationServiceWrapper.cs" />

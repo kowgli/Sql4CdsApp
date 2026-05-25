@@ -64,15 +64,30 @@
             Client Entity Metadata
             </summary>
         </member>
-        <member name="T:Microsoft.Xrm.Sdk.Metadata.ClientMetadataResults">
+        <member name="T:Microsoft.Xrm.Sdk.Metadata.ClientMetadataOutput">
             <summary>
-            Client Metadata results
+            This is a wrapper class for the output of the client metadata service. 
+            It can contain either a payload streaming task or a json string data.
             </summary>
         </member>
-        <member name="T:Microsoft.Xrm.Sdk.Metadata.EntityClientSetting">
+        <member name="P:Microsoft.Xrm.Sdk.Metadata.ClientMetadataOutput.StreamingTask">
             <summary>
-            EntityClientSetting
+            The streaming task when the output is a payload streaming task
             </summary>
+        </member>
+        <member name="P:Microsoft.Xrm.Sdk.Metadata.ClientMetadataOutput.Data">
+            <summary>
+            The data when the output is a string
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Microsoft.Xrm.Sdk.Metadata.ClientMetadataOutput.FromVoidTask(System.Threading.Tasks.Task)" -->
+        <member name="M:Microsoft.Xrm.Sdk.Metadata.ClientMetadataOutput.FromData(System.String)">
+            <summary>
+            Factory method to create an instance with a Data string
+            </summary>
+            <param name="data">the string output</param>
+            <returns>The wrapped string client metadata output</returns>
+            <exception cref="T:System.ArgumentNullException">throws on null argument</exception>
         </member>
         <member name="T:Microsoft.Xrm.Sdk.Metadata.DependencyDepth">
             <summary>
@@ -114,6 +129,49 @@
             User context mode, that
             </summary>
         </member>
+        <member name="F:Microsoft.Xrm.Sdk.Metadata.DependencyDepth.NoDependency">
+            <summary>
+            Do not discover and return any dependencies. Only return what is requested explicitly.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.Metadata.GCMMetadataOptions">
+            <summary>
+            MetadataOptions passed with GetClientMetadata. Sample data likes
+               "MetadataOptions": {
+                   "EntityOptions": {
+                       "Exclude": [
+                           {
+                               "EntityName": "systemuser",
+                               "Items": [
+                                    "relationships"
+                                ]
+                           }
+                       ]
+                   }
+               },
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.Metadata.MetadataEntityOptions">
+            <summary>
+            The items need to be excluded from the entities metadata
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.Metadata.MetadataEntityOptionsExcludeItem">
+            <summary>
+            For a given entity, what should be excluded from metadata.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.Metadata.MetadataControlOptions">
+            <summary>
+            Options about Controls on the Form
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.Metadata.MetadataEntityOptionsControlMapping">
+            <summary>
+            Mapping of one Control into one or more other Controls.
+            Indicates that Control specified as `From` will be replaced at runtime with one of the Controls specified as `To`
+            </summary>
+        </member>
         <member name="T:Microsoft.Xrm.Sdk.Metadata.MetadataQuery">
             <summary>
             Client Metadata Query for getting dependencies 
@@ -122,6 +180,11 @@
         <member name="P:Microsoft.Xrm.Sdk.Metadata.MetadataQuery.MetadataType">
             <summary>
             Gets or sets the metadata type that need to be synced
+            </summary>
+        </member>
+        <member name="P:Microsoft.Xrm.Sdk.Metadata.MetadataQuery.MetadataOptions">
+            <summary>
+            Gets or sets the metadata request options that need to be synced
             </summary>
         </member>
         <member name="P:Microsoft.Xrm.Sdk.Metadata.MetadataQuery.MetadataSubtype">
@@ -186,6 +249,16 @@
             <summary>
             Gets or sets the Over all System metadata version
             We want to sync changes after this metadata version
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.Metadata.ClientMetadataResults">
+            <summary>
+            Client Metadata results
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.Metadata.EntityClientSetting">
+            <summary>
+            EntityClientSetting
             </summary>
         </member>
         <member name="P:Microsoft.Xrm.Sdk.Metadata.ConstantsBase`1.Value">
@@ -547,6 +620,11 @@
             Gets or sets the request correlation id.
             </summary>
         </member>
+        <member name="P:Microsoft.Xrm.Sdk.Metadata.CascadeSPGenerationRequest.LogicalName">
+            <summary>
+            Gets or sets the entity logical name.
+            </summary>
+        </member>
         <member name="T:Microsoft.Xrm.Sdk.Metadata.CreateReserveEntityRequest">
             <summary>
             Contract class for Creating reserve entity request
@@ -634,6 +712,42 @@
             Valid for UpdateAttribute
             </summary>
         </member>
+        <member name="P:Microsoft.Xrm.Sdk.Metadata.DoubleAttributeMetadata.FormulaDefinition">
+            <summary>
+            String representing the formula of a calculated field.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Xrm.Sdk.Metadata.DoubleAttributeMetadata.SourceTypeMask">
+            <summary>
+             Indicates the type of attributes present in the Formula Field (i.e. persistent, logical, related, calculated, invalid or any combination of these types)
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.Metadata.EntityClusterMode">
+            <summary>
+            EntityClusterMode defines how the entity records are persisted in a cluster.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Xrm.Sdk.Metadata.EntityClusterMode.Partitioned">
+            <summary>
+            Partitioned entity records will be stored in different partitions based on the cluster partition id.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Xrm.Sdk.Metadata.EntityClusterMode.Replicated">
+            <summary>
+            Replicated entity records are stored in all partitions.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Xrm.Sdk.Metadata.EntityClusterMode.Local">
+            <summary>
+            Entity records will be stored only in the local partition.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Xrm.Sdk.Metadata.EntityClusterMode.Inherited">
+            <summary>
+            The records will be replicated only if the parent entity is replicated. 
+            The Parental relationship is set at entity's lookup attribute level.
+            </summary>
+        </member>
         <member name="P:Microsoft.Xrm.Sdk.Metadata.EntityMetadata.IntroducedVersion">
             <summary>
             Gets the version an entity was introduced in.
@@ -650,6 +764,11 @@
             Gets or sets the Entity logical name.
             </summary>
         </member>
+        <member name="P:Microsoft.Xrm.Sdk.Metadata.EntityUIProcessRequest.EntityId">
+            <summary>
+            Gets or sets the Entity Id.
+            </summary>
+        </member>
         <member name="P:Microsoft.Xrm.Sdk.Metadata.EntityUIProcessRequest.CallerId">
             <summary>
             Gets or sets the Caller id.
@@ -658,6 +777,16 @@
         <member name="P:Microsoft.Xrm.Sdk.Metadata.EntityUIProcessRequest.RequestCorrelationId">
             <summary>
             Gets or sets the request correlation id.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Xrm.Sdk.Metadata.EntityUIProcessRequest.DeltaEntityProperties">
+            <summary>
+            Contains properties which are to be updated after entity created from reserve.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Xrm.Sdk.Metadata.EntityUIProcessRequest.CustomAttributes">
+            <summary>
+            Custom attributes.
             </summary>
         </member>
         <member name="T:Microsoft.Xrm.Sdk.Metadata.FileAttributeMetadata">
@@ -811,6 +940,12 @@
         <member name="P:Microsoft.Xrm.Sdk.Metadata.MultiSelectPicklistAttributeMetadata.ChildPicklistLogicalNames">
             <summary>
             Gets list (logical names) of a picklist attribute's child attributes
+            </summary>
+        </member>
+        <member name="P:Microsoft.Xrm.Sdk.Metadata.OptionMetadata.Tag">
+            <summary>
+            This is used for EntityNameAttribute option value to indicates to which entity it points
+            this property is a readonly property whose value is populated at runtime
             </summary>
         </member>
         <member name="P:Microsoft.Xrm.Sdk.Metadata.PicklistAttributeMetadata.FormulaDefinition">
@@ -1071,6 +1206,36 @@
             </summary>
             <param name="formatName">String value to convert</param>
             <returns></returns>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.AuditStorageDetails">
+            <summary>
+            The class represents the data model of storage details response.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Xrm.Sdk.AuditStorageDetails.SizeInBytes">
+            <summary>
+            Gets or sets the size for audit.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Xrm.Sdk.AuditStorageDetails.ObjectTypeCode">
+            <summary>
+            Gets or sets the object type code for the audited entity.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.AuditStorageDetailsResult">
+            <summary>
+            Data contract for the Audit Storage Details Result
+            </summary>
+        </member>
+        <member name="P:Microsoft.Xrm.Sdk.AuditStorageDetailsResult.Status">
+            <summary>
+            Operation status
+            </summary>
+        </member>
+        <member name="P:Microsoft.Xrm.Sdk.AuditStorageDetailsResult.AuditStorageDetails">
+            <summary>
+            Dictionary with entity logical name and Audit Storage Details.
+            </summary>
         </member>
         <member name="T:Microsoft.Xrm.Sdk.BusinessEntityChanges">
             <summary>
@@ -1973,6 +2138,12 @@
             </summary>
             <typeparam name="T">The type of elements in the collection</typeparam>
         </member>
+        <member name="M:Microsoft.Xrm.Sdk.DataCollection`1.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Xrm.Sdk.DataCollection`1"/> class.
+            </summary>
+            <param name="capacity">The number of elements that the inner list can initially store.</param>
+        </member>
         <member name="M:Microsoft.Xrm.Sdk.DataCollection`1.AddRange(`0[])">
             <summary>
             Add items to the collection
@@ -2766,6 +2937,11 @@
             List of file pointers to reconcile
             </summary>
         </member>
+        <member name="P:Microsoft.Xrm.Sdk.EntityFilePointersRequest.ElasticEntitiesFilePointers">
+            <summary>
+            Dictionary holding file pointers of elastic entities to reconcile, This is a dictionary with Key/Value mapping to FilePointer/PartitionId
+            </summary>
+        </member>
         <member name="P:Microsoft.Xrm.Sdk.EntityFilePointersRequest.OrganizationId">
             <summary>
             Gets or sets the organization id.
@@ -2836,6 +3012,11 @@
             Gets or sets the file size.
             </summary>
         </member>
+        <member name="P:Microsoft.Xrm.Sdk.UpdatePointersRequest.VersionNumber">
+            <summary>
+            Gets or sets the version number.
+            </summary>
+        </member>
         <member name="P:Microsoft.Xrm.Sdk.UpdatePointersRequest.Otc">
             <summary>
             Gets or sets the object type code.
@@ -2901,6 +3082,35 @@
             <param name="authority">If found, the authority to use when calling AcquireToken, else returns empty string</param>
             <param name="resource">If found, the resource to use when calling AcquireToken, else returns empty string</param>
             <returns>True if successfully populated, false if unable to retrieve</returns>
+        </member>
+        <member name="M:Microsoft.Xrm.Sdk.IClientHeaderService.GetHeaderValue(Microsoft.Xrm.Sdk.ClientHeader)">
+            <summary>
+            Gets header value passed by client
+            </summary>
+            <param name="clientHeader"></param>
+            <returns>value of the header passed by client</returns>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.ClientHeader">
+            <summary>
+            Available client headers supported by IClientHeaderService
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.IClusterService">
+            <summary>
+            Interface to support cluster cross partition requests.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.IClusterServiceFactory">
+            <summary>
+            Interface to allow plug-ins to obtain IClusterService.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Xrm.Sdk.IClusterServiceFactory.CreateClusterService(System.Nullable{System.Guid})">
+            <summary>
+            Creates an instance of IClusterService initialized with a given user id.  Null will use the 
+            current user id.
+            </summary>
+            <param name="userId">Id of user.</param>
         </member>
         <member name="T:Microsoft.Xrm.Sdk.IEnvironmentService">
             <summary>
@@ -3211,6 +3421,14 @@
             <param name="scopes">Scopes of the token</param>
             <returns>Access token for the scopes</returns>
         </member>
+        <member name="M:Microsoft.Xrm.Sdk.IManagedIdentityService.AcquireToken(System.Guid,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Aquire the access to token for specified managed identity id and scopes
+            </summary>
+            <param name="managedIdentityId"></param>
+            <param name="scopes"></param>
+            <returns>Access token for specified managed identity id and scopes</returns>
+        </member>
         <member name="T:Microsoft.Xrm.Sdk.OperationStatus">
             <summary>
             Status of workflow instance after executing StopWorkflow activity.
@@ -3234,10 +3452,25 @@
             Constructor allowing a specific HTTP status code to be returned when InvalidPluginExecutionException is thrown.
             </summary>
         </member>
+        <member name="M:Microsoft.Xrm.Sdk.InvalidPluginExecutionException.#ctor(System.String,Microsoft.Xrm.Sdk.PluginHttpStatusCode,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Xrm.Sdk.InvalidPluginExecutionException"/> class.
+            Constructor allowing a specific HTTP status code and a dictionary containing exception details to be returned when InvalidPluginExecutionException is thrown.
+            </summary>
+            <param name="message">Message that describes the error</param>
+            <param name="httpStatus">PluginHttpStatusCode to be returned for the exception</param>
+            <param name="exceptionDetails">Dictionary containing different parameters of the exception details</param>
+        </member>
         <member name="M:Microsoft.Xrm.Sdk.InvalidPluginExecutionException.#ctor(Microsoft.Xrm.Sdk.OperationStatus,System.Int32,System.String,Microsoft.Xrm.Sdk.PluginHttpStatusCode)">
             <summary>
             Initializes a new instance of the <see cref="T:Microsoft.Xrm.Sdk.InvalidPluginExecutionException"/> class.
             Constructor allowing a specific HTTP status code to be returned when InvalidPluginExecutionException is thrown.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Xrm.Sdk.InvalidPluginExecutionException.#ctor(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Xrm.Sdk.InvalidPluginExecutionException"/> class.
+            Constructor allowing key-value pairs to be passed when throwing InvalidPluginExecutionException.
             </summary>
         </member>
         <member name="P:Microsoft.Xrm.Sdk.InvalidPluginExecutionException.Status">
@@ -3348,6 +3581,41 @@
         <member name="P:Microsoft.Xrm.Sdk.IPluginExecutionContext4.PostEntityImagesCollection">
             <summary>
             Contains a collection of PostEntityImages
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.IPluginExecutionContext5">
+            <summary>
+            Extension of IPluginExecutionContext4 adding support for initiating user agent property
+            </summary>
+        </member>
+        <member name="P:Microsoft.Xrm.Sdk.IPluginExecutionContext5.InitiatingUserAgent">
+            <summary>
+            Gets the initiating user agent
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.IPluginExecutionContext6">
+            <summary>
+            Extension of IPluginExecutionContext6 adding support for environment id and tenant id
+            </summary>
+        </member>
+        <member name="P:Microsoft.Xrm.Sdk.IPluginExecutionContext6.EnvironmentId">
+            <summary>
+            Gets the environment id
+            </summary>
+        </member>
+        <member name="P:Microsoft.Xrm.Sdk.IPluginExecutionContext6.TenantId">
+            <summary>
+            Gets the environment id
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.IPluginExecutionContext7">
+            <summary>
+            Extension of IPluginExecutionContext7 adding support for IsApplicationUser
+            </summary>
+        </member>
+        <member name="P:Microsoft.Xrm.Sdk.IPluginExecutionContext7.IsApplicationUser">
+            <summary>
+            Gets a value which indicates whether the user is an Application User
             </summary>
         </member>
         <member name="T:Microsoft.Xrm.Sdk.IProxyPlugin">
@@ -3756,6 +4024,51 @@
         <member name="M:Microsoft.Xrm.Sdk.Messages.UpdateMultipleResponse.#ctor">
             <summary>
             Initializes a new instance of the <see cref="T:Microsoft.Xrm.Sdk.Messages.UpdateMultipleResponse"/> class.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.Messages.UpsertMultipleRequest">
+            <summary>
+            Organization request for UpsertMultiple SDK message.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Xrm.Sdk.Messages.UpsertMultipleRequest.Targets">
+            <summary>
+            Gets or Sets the EntityCollection that is used to create/update new entity records.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Xrm.Sdk.Messages.UpsertMultipleRequest.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Xrm.Sdk.Messages.UpsertMultipleRequest"/> class.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.Messages.UpsertMultipleResponse">
+            <summary>
+            Organization response for UpsertMultiple SDK message.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Xrm.Sdk.Messages.UpsertMultipleResponse.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Xrm.Sdk.Messages.UpsertMultipleResponse"/> class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Xrm.Sdk.Messages.UpsertMultipleResponse.Results">
+            <summary>
+            Gets the array of UpsertResponse for the newly created/updated records.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.Messages.DeleteMultipleRequest">
+            <summary>
+            Organization request for DeleteMultiple SDK message.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Xrm.Sdk.Messages.DeleteMultipleRequest.Targets">
+            <summary>
+            Gets or Sets the EntityReferenceCollection that is used to delete records.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Xrm.Sdk.Messages.DeleteMultipleRequest.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Xrm.Sdk.Messages.DeleteMultipleRequest"/> class.
             </summary>
         </member>
         <member name="P:Microsoft.Xrm.Sdk.Messages.RetrieveEntityChangesRequest.GetGlobalMetadataVersion">
@@ -4440,7 +4753,7 @@
             Tds Encoded Data Stream.
             </summary>
         </member>
-        <member name="M:Microsoft.Xrm.Sdk.IPSqlTdsResponsePipe.StartAsync">
+        <member name="M:Microsoft.Xrm.Sdk.IPSqlTdsResponsePipe.StartAsync(System.Threading.CancellationToken)">
             <summary>
             Start fill in the stream async.
             </summary>
@@ -4475,7 +4788,17 @@
             Query Text
             </summary>
         </member>
+        <member name="P:Microsoft.Xrm.Sdk.TdsPowerBISqlRequest.RequestId">
+            <summary>
+            RequestId
+            </summary>
+        </member>
         <member name="P:Microsoft.Xrm.Sdk.TdsPowerBISqlRequest.QueryParameters">
+            <summary>
+            Gets or sets parameters for the request.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Xrm.Sdk.TdsPowerBISqlRequest.ConnectionContext">
             <summary>
             Gets or sets parameters for the request.
             </summary>
@@ -4770,6 +5093,11 @@
             If total record count across all pages is required
             </summary>
         </member>
+        <member name="P:Microsoft.Xrm.Sdk.Query.PagingInfo.ReturnRecordCountLessThanMarv">
+            <summary>
+            This is used in case of FNO Synapse sync
+            </summary>
+        </member>
         <member name="P:Microsoft.Xrm.Sdk.Query.PagingInfo.PagingCookie">
             <summary>
             Page Cookie information, null indicates old paging to be used.
@@ -4778,6 +5106,11 @@
         <member name="T:Microsoft.Xrm.Sdk.Query.QueryBase">
             <summary>
             Query class similary to V4
+            </summary>
+        </member>
+        <member name="M:Microsoft.Xrm.Sdk.Query.QueryExpression.InternalResetSerializationCounters">
+            <summary>
+            Should be called before serializing a QueryExpression 
             </summary>
         </member>
         <member name="T:Microsoft.Xrm.Sdk.Query.QueryExpressionVisitorBase">
@@ -4971,6 +5304,23 @@
             one of the constants specified in the class</exception>
             <param name="value">an integer to be validated as a FieldPermissionType</param>
         </member>
+        <member name="M:Microsoft.Xrm.Sdk.FieldPermissionType.Validate(System.Int32,System.String)">
+            <summary>
+            Validate whether the provided value is one of the constants in the class
+            </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException">Throws ArgumentOutOfRangeException if the provided value is not 
+            one of the constants specified in the class</exception>
+            <param name="value">an integer to be validated as a FieldPermissionType</param>
+            <param name="permissionName">name of FieldPermissionType</param>
+        </member>
+        <member name="M:Microsoft.Xrm.Sdk.FieldPermissionTypeCanReadUnMasked.Validate(System.Int32)">
+            <summary>
+            Validate whether the provided value is one of the constants in the class
+            </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException">Throws ArgumentOutOfRangeException if the provided value is not 
+            one of the constants specified in the class</exception>
+            <param name="value">an integer to be validated as a FieldPermissionTypeCanReadUnMasked</param>
+        </member>
         <member name="T:Microsoft.Xrm.Sdk.SelectColumn">
             <summary>
             EntityCollection does not have a columnset schema header. So if the EntityCollection is empty then TDS endpoint will not know how to generate 
@@ -5045,6 +5395,26 @@
             <param name="query"></param>
             <returns></returns>
         </member>
+        <member name="T:Microsoft.Xrm.Sdk.ActionLink">
+            <summary>
+            ActionLink
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.AddComponentToSolutionParameters">
+            <summary>
+            This is used for new API AddComponentsToSolution which does bulk add solution component operation.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.AddComponentToSolutionParametersCollection">
+            <summary>
+            This is used for new API AddComponentsToSolution which does bulk add solution component operation.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.BulkRemoveActiveCustomizationsParameters">
+            <summary>
+            Holds the parameters for BulkRemoveActiveCustomizations operation
+            </summary>
+        </member>
         <member name="T:Microsoft.Xrm.Sdk.LayerDesiredOrder">
             <summary>
             Holds the hints for solution install
@@ -5053,6 +5423,26 @@
         <member name="T:Microsoft.Xrm.Sdk.LayerDesiredOrderType">
             <summary>
             Supported types of hints
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.MissingPackageResolutionAction">
+            <summary>
+            The resolution action for missing packages.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.PreferredSolutionDetails">
+            <summary>
+            Holds the hints for solution install
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.RemoveDependencyResult">
+            <summary>
+            RemoveDependnecy result
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.RemoveDependencyStatus">
+            <summary>
+            RemoveDependencyStatus
             </summary>
         </member>
         <member name="T:Microsoft.Xrm.Sdk.SolutionInfo">
@@ -5363,6 +5753,11 @@
         <member name="T:Microsoft.Xrm.Sdk.ServicePlan">
             <summary>
             Service plan ex:D365_ENTERPRISE_P1
+            </summary>
+        </member>
+        <member name="T:Microsoft.Xrm.Sdk.UserName">
+            <summary>
+            Holds the hints for solution install
             </summary>
         </member>
         <member name="T:Microsoft.Xrm.Sdk.WebServiceClient.DiscoveryWebProxyClientContextInitializer">

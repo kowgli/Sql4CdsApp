@@ -1,4 +1,3 @@
-"use strict";
 /// <reference path="../../../node_modules/@types/ace/index.d.ts" />
 /// <reference path="../../../node_modules/@types/tabulator/index.d.ts" />
 var Sql4CdsApp;

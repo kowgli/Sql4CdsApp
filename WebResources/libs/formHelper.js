@@ -1,4 +1,3 @@
-"use strict";
 /// <reference path="../node_modules/@types/xrm/index.d.ts" />
 var XRM;
 (function (XRM) {

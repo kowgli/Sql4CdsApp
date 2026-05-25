@@ -270,6 +270,8 @@
     <Content Include="WebResourceManager\Newtonsoft.Json.xml" />
     <Content Include="WebResourceManager\System.Buffers.dll" />
     <Content Include="WebResourceManager\System.Buffers.xml" />
+    <Content Include="WebResourceManager\System.IO.Pipelines.dll" />
+    <Content Include="WebResourceManager\System.IO.Pipelines.xml" />
     <Content Include="WebResourceManager\System.Memory.dll" />
     <Content Include="WebResourceManager\System.Memory.xml" />
     <Content Include="WebResourceManager\System.Net.Http.dll" />
@@ -281,6 +283,10 @@
     <Content Include="WebResourceManager\System.Security.Cryptography.Encoding.dll" />
     <Content Include="WebResourceManager\System.Security.Cryptography.Primitives.dll" />
     <Content Include="WebResourceManager\System.Security.Cryptography.X509Certificates.dll" />
+    <Content Include="WebResourceManager\System.ServiceModel.Http.dll" />
+    <Content Include="WebResourceManager\System.ServiceModel.Http.pdb" />
+    <Content Include="WebResourceManager\System.ServiceModel.Primitives.dll" />
+    <Content Include="WebResourceManager\System.ServiceModel.Primitives.pdb" />
     <Content Include="WebResourceManager\System.Text.Encodings.Web.dll" />
     <Content Include="WebResourceManager\System.Text.Encodings.Web.xml" />
     <Content Include="WebResourceManager\System.Text.Json.dll" />
