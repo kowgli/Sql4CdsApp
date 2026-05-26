@@ -6,7 +6,7 @@ declare var Tabulator;
 namespace Sql4CdsApp.SqlEditor {
 
     let editor: AceAjax.Editor;
-    let table, statusEl, errorBox, rowsInfo;
+    let table, statusEl, errorBox, rowsInfo, commandMessage;
 
     export function onLoad() {
         // ── Ace setup ──────────────────────────────────────────────────
@@ -46,9 +46,10 @@ WHERE statecode = 0;
         });
 
         // ── UI helpers ─────────────────────────────────────────────────
-        statusEl = document.getElementById("status");
-        errorBox = document.getElementById("errorBox");
-        rowsInfo = document.getElementById("rowsInfo");
+        statusEl       = document.getElementById("status");
+        errorBox       = document.getElementById("errorBox");
+        rowsInfo       = document.getElementById("rowsInfo");
+        commandMessage = document.getElementById("commandMessage");
 
         // ── Toolbar events ─────────────────────────────────────────────
         document.getElementById("runBtn")!.addEventListener("click", run);
@@ -56,7 +57,8 @@ WHERE statecode = 0;
         document.getElementById("clearBtn")!.addEventListener("click", () => {
             table.clearData();
             table.setColumns([]);
-            rowsInfo.textContent = "0 rows";
+            showCommandMessage(null);
+            rowsInfo.textContent = "";
             setStatus("Cleared");
             clearError();
         });
@@ -156,6 +158,17 @@ WHERE statecode = 0;
     }
 
     // ── Grid population ────────────────────────────────────────────────
+    function showCommandMessage(msg: string | null) {
+        if (msg) {
+            commandMessage.textContent = msg;
+            commandMessage.style.display = "flex";
+            document.getElementById("grid")!.style.display = "none";
+        } else {
+            commandMessage.style.display = "none";
+            document.getElementById("grid")!.style.display = "";
+        }
+    }
+
     function setGridFromResult(result) {
         const cols = result.columns || [];
         const rows = result.rows || [];
@@ -180,6 +193,7 @@ WHERE statecode = 0;
 
         table.setColumns(tabColumns);
         table.setData(dataObjects);
+        showCommandMessage(null);
         rowsInfo.textContent = `${dataObjects.length} rows`;
     }
 
@@ -200,12 +214,7 @@ WHERE statecode = 0;
 
         const resp = await Xrm.WebApi.online.execute(execSqlRequest);
         const actionResponse = await resp.json();
-        const execSqlResponse = JSON.parse(actionResponse.Response);
-
-        return {
-            columns: execSqlResponse.columns,
-            rows: execSqlResponse.rows
-        };
+        return JSON.parse(actionResponse.Response);
     }
 
     // ── Run flow ───────────────────────────────────────────────────────
@@ -214,15 +223,31 @@ WHERE statecode = 0;
         setStatus("Running…");
         (document.getElementById("runBtn") as HTMLButtonElement).disabled = true;
 
-        const sqlText = editor.getValue();
+        const selection = editor.session.getTextRange(editor.getSelectionRange());
+        const sqlText = selection.trim() ? selection : editor.getValue();
 
         try {
             const t0 = performance.now();
             const result = await executeQuery(sqlText);
-            const t1 = performance.now();
+            const elapsed = (performance.now() - t0).toFixed(0);
 
-            setGridFromResult(result);
-            setStatus(`Done in ${(t1 - t0).toFixed(0)} ms`);
+            if (!result.isSuccess) {
+                showError(result.errorText || "Unknown error");
+                setStatus("Error");
+                return;
+            }
+
+            if (result.emptyResult) {
+                table.clearData();
+                table.setColumns([]);
+                showCommandMessage("Command executed successfully");
+                rowsInfo.textContent = result.recordsAffected > 0
+                    ? `${result.recordsAffected} row(s) affected`
+                    : "";
+            } else {
+                setGridFromResult(result);
+            }
+            setStatus(`Done in ${elapsed} ms`);
         } catch (e: any) {
             showError(e && e.stack ? e.stack : String(e));
             setStatus("Error");

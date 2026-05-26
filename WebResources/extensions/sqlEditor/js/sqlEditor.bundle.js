@@ -5,7 +5,7 @@ var Sql4CdsApp;
     var SqlEditor;
     (function (SqlEditor) {
         let editor;
-        let table, statusEl, errorBox, rowsInfo;
+        let table, statusEl, errorBox, rowsInfo, commandMessage;
         function onLoad() {
             // ── Ace setup ──────────────────────────────────────────────────
             editor = ace.edit("editor");
@@ -42,12 +42,14 @@ WHERE statecode = 0;
             statusEl = document.getElementById("status");
             errorBox = document.getElementById("errorBox");
             rowsInfo = document.getElementById("rowsInfo");
+            commandMessage = document.getElementById("commandMessage");
             // ── Toolbar events ─────────────────────────────────────────────
             document.getElementById("runBtn").addEventListener("click", run);
             document.getElementById("clearBtn").addEventListener("click", () => {
                 table.clearData();
                 table.setColumns([]);
-                rowsInfo.textContent = "0 rows";
+                showCommandMessage(null);
+                rowsInfo.textContent = "";
                 setStatus("Cleared");
                 clearError();
             });
@@ -136,6 +138,17 @@ WHERE statecode = 0;
             editor.resize();
         }
         // ── Grid population ────────────────────────────────────────────────
+        function showCommandMessage(msg) {
+            if (msg) {
+                commandMessage.textContent = msg;
+                commandMessage.style.display = "flex";
+                document.getElementById("grid").style.display = "none";
+            }
+            else {
+                commandMessage.style.display = "none";
+                document.getElementById("grid").style.display = "";
+            }
+        }
         function setGridFromResult(result) {
             const cols = result.columns || [];
             const rows = result.rows || [];
@@ -158,6 +171,7 @@ WHERE statecode = 0;
             }
             table.setColumns(tabColumns);
             table.setData(dataObjects);
+            showCommandMessage(null);
             rowsInfo.textContent = `${dataObjects.length} rows`;
         }
         // ── Query execution (replace with your backend call) ──────────────
@@ -176,24 +190,36 @@ WHERE statecode = 0;
             };
             const resp = await Xrm.WebApi.online.execute(execSqlRequest);
             const actionResponse = await resp.json();
-            const execSqlResponse = JSON.parse(actionResponse.Response);
-            return {
-                columns: execSqlResponse.columns,
-                rows: execSqlResponse.rows
-            };
+            return JSON.parse(actionResponse.Response);
         }
         // ── Run flow ───────────────────────────────────────────────────────
         async function run() {
             clearError();
             setStatus("Running…");
             document.getElementById("runBtn").disabled = true;
-            const sqlText = editor.getValue();
+            const selection = editor.session.getTextRange(editor.getSelectionRange());
+            const sqlText = selection.trim() ? selection : editor.getValue();
             try {
                 const t0 = performance.now();
                 const result = await executeQuery(sqlText);
-                const t1 = performance.now();
-                setGridFromResult(result);
-                setStatus(`Done in ${(t1 - t0).toFixed(0)} ms`);
+                const elapsed = (performance.now() - t0).toFixed(0);
+                if (!result.isSuccess) {
+                    showError(result.errorText || "Unknown error");
+                    setStatus("Error");
+                    return;
+                }
+                if (result.emptyResult) {
+                    table.clearData();
+                    table.setColumns([]);
+                    showCommandMessage("Command executed successfully");
+                    rowsInfo.textContent = result.recordsAffected > 0
+                        ? `${result.recordsAffected} row(s) affected`
+                        : "";
+                }
+                else {
+                    setGridFromResult(result);
+                }
+                setStatus(`Done in ${elapsed} ms`);
             }
             catch (e) {
                 showError(e && e.stack ? e.stack : String(e));

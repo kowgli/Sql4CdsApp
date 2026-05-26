@@ -151,6 +151,22 @@ html, body {
     color: var(--f-muted);
 }
 
+.panel-result-info {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--f-text);
+}
+
+/* ── Command-executed message (DML with no result set) ── */
+#commandMessage {
+    display: none;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    color: var(--f-muted);
+    font-size: 14px;
+}
+
 /* ── Ace editor ── */
 #editor {
     flex: 1;
