@@ -1,5 +1,5 @@
 {
-  "connectionString": "VaultUrl=https://crmdev365vault.vault.azure.net/; Key=DevCrmOrg; TenantId=a3313b36-7e2a-44a7-a4ba-03a2e5e15489",
+  "connectionString": "VaultUrl=https://crmdev365vault.vault.azure.net/; Key=DevCrmOrg;",
   "mappings": [
     {
       "source": "extensions/sqlEditor/sqlEditor.html",

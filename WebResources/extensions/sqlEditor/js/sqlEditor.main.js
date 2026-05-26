@@ -162,14 +162,24 @@ WHERE statecode = 0;
         }
         // ── Query execution (replace with your backend call) ──────────────
         async function executeQuery(sqlText) {
-            // Replace with fetch / Xrm.WebApi / etc.
-            let rows = [];
-            for (let i = 0; i < 1000; i++) {
-                rows.push({ accountid: i.toString(), name: `Sample Account ${i}`, description: "This is a sample account" });
-            }
+            const execSqlRequest = {
+                Request: sqlText,
+                getMetadata: function () {
+                    return {
+                        boundParameter: null,
+                        parameterTypes: {
+                            Request: { typeName: "Edm.String", structuralProperty: 1 }
+                        },
+                        operationType: 0, operationName: "cd365_ExecSql"
+                    };
+                }
+            };
+            const resp = await Xrm.WebApi.online.execute(execSqlRequest);
+            const actionResponse = await resp.json();
+            const execSqlResponse = JSON.parse(actionResponse.Response);
             return {
-                columns: ["accountid", "name", "description"],
-                rows: rows
+                columns: execSqlResponse.columns,
+                rows: execSqlResponse.rows
             };
         }
         // ── Run flow ───────────────────────────────────────────────────────

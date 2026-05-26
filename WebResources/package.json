@@ -3,7 +3,7 @@
   "name": "asp.net",
   "private": true,
   "devDependencies": {
-    "@types/xrm": "9.0.78",
+    "@types/xrm": "9.0.94",
     "@types/jquery": "3.3.31",
     "@types/jqueryui": "1.12.1",
     "@types/jquery.cookie": "1.4.31",

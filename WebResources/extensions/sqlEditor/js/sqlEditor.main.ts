@@ -79,9 +79,9 @@ WHERE statecode = 0;
 
     // ── Divider / splitter ─────────────────────────────────────────────
     function setupDivider() {
-        const divider     = document.getElementById("divider")!;
+        const divider = document.getElementById("divider")!;
         const editorPanel = document.getElementById("editorPanel")!;
-        const mainEl      = document.getElementById("main")!;
+        const mainEl = document.getElementById("main")!;
 
         let isDragging = false;
         let startY = 0;
@@ -109,25 +109,25 @@ WHERE statecode = 0;
             if (!isDragging) return;
             const dy = e.clientY - startY;
             const mainH = mainEl.getBoundingClientRect().height;
-            const divH  = divider.offsetHeight;
-            const minH  = 80;
-            const newH  = Math.max(minH, Math.min(mainH - divH - minH, startEditorH + dy));
+            const divH = divider.offsetHeight;
+            const minH = 80;
+            const newH = Math.max(minH, Math.min(mainH - divH - minH, startEditorH + dy));
             editorHeightPx = newH;
             editorPanel.style.flex = `0 0 ${newH}px`;
             editor.resize();
         });
 
-        divider.addEventListener("pointerup",       stopDrag);
-        divider.addEventListener("pointercancel",   stopDrag);
+        divider.addEventListener("pointerup", stopDrag);
+        divider.addEventListener("pointercancel", stopDrag);
         divider.addEventListener("lostpointercapture", stopDrag);
-        window.addEventListener("blur",             stopDrag);
+        window.addEventListener("blur", stopDrag);
 
         // Reclamp stored height when the host frame is resized
         window.addEventListener("resize", () => {
             if (editorHeightPx === null) return;
             const mainH = mainEl.getBoundingClientRect().height;
-            const divH  = divider.offsetHeight;
-            const maxH  = mainH - divH - 80;
+            const divH = divider.offsetHeight;
+            const maxH = mainH - divH - 80;
             if (editorHeightPx > maxH) {
                 editorHeightPx = Math.max(80, maxH);
                 editorPanel.style.flex = `0 0 ${editorHeightPx}px`;
@@ -158,7 +158,7 @@ WHERE statecode = 0;
     // ── Grid population ────────────────────────────────────────────────
     function setGridFromResult(result) {
         const cols = result.columns || [];
-        const rows = result.rows    || [];
+        const rows = result.rows || [];
 
         const tabColumns = cols.map(c => ({
             title: c,
@@ -185,17 +185,26 @@ WHERE statecode = 0;
 
     // ── Query execution (replace with your backend call) ──────────────
     async function executeQuery(sqlText: string) {
-        // Replace with fetch / Xrm.WebApi / etc.
+        const execSqlRequest = {        
+            Request: sqlText,
+            getMetadata: function () {
+                return {
+                    boundParameter: null,
+                    parameterTypes: {
+                        Request: { typeName: "Edm.String", structuralProperty: 1 }
+                    },
+                    operationType: 0, operationName: "cd365_ExecSql"
+                };
+            }
+        };
 
-        let rows = [];
-
-        for (let i = 0; i < 1000; i++) {
-            rows.push( { accountid: i.toString(), name: `Sample Account ${i}` ,  description: "This is a sample account" })
-        }
+        const resp = await Xrm.WebApi.online.execute(execSqlRequest);
+        const actionResponse = await resp.json();
+        const execSqlResponse = JSON.parse(actionResponse.Response);
 
         return {
-            columns: ["accountid", "name", "description"],
-            rows: rows
+            columns: execSqlResponse.columns,
+            rows: execSqlResponse.rows
         };
     }
 
