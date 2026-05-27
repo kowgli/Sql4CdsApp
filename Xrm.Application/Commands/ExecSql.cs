@@ -16,6 +16,15 @@ namespace Xrm.Application.Commands
         [Output]
         public string Response { get; set; }
 
+        public class RequestModel
+        {
+            [JsonProperty("sql")] public string Sql { get; set; }
+            [JsonProperty("bypassCustomPlugins")] public bool BypassCustomPlugins { get; set; }
+            [JsonProperty("useLocalTimeZone")] public bool UseLocalTimeZone { get; set; }
+            [JsonProperty("blockDeleteWithoutWhere")] public bool BlockDeleteWithoutWhere { get; set; }
+            [JsonProperty("blockUpdateWithoutWhere")] public bool BlockUpdateWithoutWhere { get; set; }
+        }
+
         public class ResponseModel
         {
             [JsonProperty("columns")] public string[] Columns { get; set; }
@@ -25,6 +34,7 @@ namespace Xrm.Application.Commands
             [JsonProperty("isSuccess")] public bool IsSuccess { get; set; }
             [JsonProperty("errorText")] public string ErrorText { get; set; }
         }
+
 
         public class Handler : CommandHandler<ExecSql>
         {
@@ -38,13 +48,20 @@ namespace Xrm.Application.Commands
 
                 try
                 {
+                    RequestModel request = JsonConvert.DeserializeObject<RequestModel>(command.Request);
+                
                     using (var con = new Sql4CdsConnection(OrgServiceWrapper.OrgService))
                     using (var cmd = con.CreateCommand())
                     {
-                        cmd.CommandText = command.Request;
+                        cmd.CommandText = request.Sql;
 
                         con.MaxDegreeOfParallelism = 1;
                         con.UseTDSEndpoint = false;
+
+                        con.BypassCustomPlugins = request.BypassCustomPlugins;
+                        con.UseLocalTimeZone = request.UseLocalTimeZone;
+                        con.BlockDeleteWithoutWhere = request.BlockDeleteWithoutWhere;
+                        con.BlockUpdateWithoutWhere = request.BlockUpdateWithoutWhere;
 
                         cmd.StatementCompleted += (s, e) => response.RecordsAffected += e.RecordsAffected;
 
@@ -85,7 +102,7 @@ namespace Xrm.Application.Commands
                     response.ErrorText = ex.Message;                    
                 }
 
-                command.Response = Newtonsoft.Json.JsonConvert.SerializeObject(response);
+                command.Response = JsonConvert.SerializeObject(response);
 
                 return VoidEvent;
             }

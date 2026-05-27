@@ -2,9 +2,11 @@
 
 A **Dataverse plugin and web resource wrapper** around [Sql4Cds](https://github.com/MarkMpn/Sql4Cds) that enables running SQL queries against Dataverse directly from the **model-driven app web UI**.
 
-## Warning
+![Sql4CdsApp Screenshot](Docs/Screenshot.png)
 
-Currently extremely work in progress. Uses application template which is a total overkill (especially on plugin side) for this but makes development faster. Might be optimized in future.
+## How to install?
+
+A Dataverse solution will be available for download once this becomes ready for release. Currently it's early work in progress.
 
 ## Overview
 

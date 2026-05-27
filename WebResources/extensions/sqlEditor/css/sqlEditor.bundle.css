@@ -89,14 +89,16 @@ html, body {
 
 .spacer { flex: 1; }
 
-#status {
+.opt-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     font-size: 12px;
     color: var(--f-muted);
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 50%;
-    padding-right: 4px;
+    cursor: pointer;
+    user-select: none;
+    padding: 0 6px;
 }
 
 /* ── Main content area (vertical split) ── */
@@ -126,6 +128,7 @@ html, body {
 #gridPanel {
     flex: 1 1 0;
     min-height: 80px;
+    position: relative;
 }
 
 /* ── Panel header bar ── */
@@ -133,28 +136,41 @@ html, body {
     flex: none;
     display: flex;
     align-items: center;
-    justify-content: space-between;
     height: 32px;
     padding: 0 12px;
     background: var(--f-header-bg);
     border-bottom: 1px solid var(--f-border);
+    gap: 8px;
 }
 
 .panel-title {
     font-size: 12px;
     font-weight: 600;
     color: var(--f-muted);
+    flex: none;
 }
 
 .panel-hint {
     font-size: 11px;
     color: var(--f-muted);
+    margin-left: auto;
+}
+
+.panel-status {
+    flex: 1;
+    font-size: 12px;
+    color: var(--f-muted);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .panel-result-info {
     font-size: 12px;
     font-weight: 600;
     color: var(--f-text);
+    flex: none;
 }
 
 /* ── Command-executed message (DML with no result set) ── */
@@ -167,7 +183,107 @@ html, body {
     font-size: 14px;
 }
 
-/* ── Ace editor ── */
+/* ── Results body wrapper (contains overlay + grid) ── */
+#resultsBody {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ── Loading overlay ── */
+#loadingOverlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(2px);
+    z-index: 20;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+}
+
+.loading-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--f-border);
+    border-top-color: var(--f-primary);
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+#loadingTimer {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--f-muted);
+    font-variant-numeric: tabular-nums;
+    min-width: 3ch;
+    text-align: center;
+}
+
+.cmd-btn-cancel {
+    border-color: var(--f-border);
+}
+
+/* ── Resize skeleton (shown while dragging the divider) ── */
+#resizeSkeleton {
+    display: none;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    /* Row stripes — offset by 38px to start below the fake header */
+    background-color: var(--f-surface);
+    background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 35px,
+        var(--f-border) 35px,
+        var(--f-border) 36px
+    );
+    background-position: 0 38px;
+}
+
+/* Fake column-header bar */
+#resizeSkeleton::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 38px;
+    background: var(--f-header-bg);
+    border-bottom: 2px solid var(--f-border);
+    z-index: 1;
+}
+
+/* GPU-accelerated shimmer sweep */
+#resizeSkeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.6) 50%,
+        transparent 100%
+    );
+    will-change: transform;
+    animation: sk-shimmer 1.4s ease-in-out infinite;
+    z-index: 2;
+}
+
+@keyframes sk-shimmer {
+    from { transform: translateX(-100%); }
+    to   { transform: translateX(200%); }
+}
+
+
 #editor {
     flex: 1;
     min-height: 0;
@@ -192,6 +308,7 @@ html, body {
     height: 8px;           /* invisible hit zone */
     position: relative;
     cursor: ns-resize;
+    touch-action: none;    /* prevent browser scroll-gesture detection delay */
     background: transparent;
     z-index: 10;
 }
@@ -306,6 +423,11 @@ html, body {
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+}
+
+/* Hide the header bar when the table is empty (placeholder visible) */
+.tabulator:has(.tabulator-placeholder) .tabulator-header {
+    display: none;
 }
 
 /* Empty-state placeholder */

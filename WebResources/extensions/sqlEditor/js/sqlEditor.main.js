@@ -5,7 +5,9 @@ var Sql4CdsApp;
     var SqlEditor;
     (function (SqlEditor) {
         let editor;
-        let table, statusEl, errorBox, rowsInfo, commandMessage;
+        let table, statusEl, errorBox, rowsInfo, commandMessage, loadingOverlay, loadingTimer;
+        let runGeneration = 0;
+        let timerInterval = null;
         function onLoad() {
             // ── Ace setup ──────────────────────────────────────────────────
             editor = ace.edit("editor");
@@ -18,12 +20,15 @@ var Sql4CdsApp;
                 tabSize: 2,
                 useSoftTabs: true
             });
-            editor.setValue(`-- Write SQL here. You handle execution.
+            editor.setValue(`-- Write SQL here.
 -- Ctrl+Enter to run.
-
-SELECT *
-FROM account
-WHERE statecode = 0;
+SELECT
+  accountid,
+  name
+FROM
+  account
+WHERE
+  statecode = 0;
     `, -1);
             editor.commands.addCommand({
                 name: "runQuery",
@@ -43,6 +48,8 @@ WHERE statecode = 0;
             errorBox = document.getElementById("errorBox");
             rowsInfo = document.getElementById("rowsInfo");
             commandMessage = document.getElementById("commandMessage");
+            loadingOverlay = document.getElementById("loadingOverlay");
+            loadingTimer = document.getElementById("loadingTimer");
             // ── Toolbar events ─────────────────────────────────────────────
             document.getElementById("runBtn").addEventListener("click", run);
             document.getElementById("clearBtn").addEventListener("click", () => {
@@ -54,12 +61,21 @@ WHERE statecode = 0;
                 clearError();
             });
             document.getElementById("formatBtn").addEventListener("click", () => {
-                const s = editor.getValue()
-                    .replace(/\t/g, "  ")
-                    .replace(/[ \t]+$/gm, "")
-                    .trimEnd();
-                editor.setValue(s + "\n", -1);
-                setStatus("Formatted");
+                const sql = editor.getValue();
+                try {
+                    const formatted = sqlFormatter.format(sql, { language: "tsql" });
+                    editor.setValue(formatted, -1);
+                    setStatus("Formatted");
+                }
+                catch {
+                    setStatus("Format failed");
+                }
+            });
+            document.getElementById("cancelBtn").addEventListener("click", () => {
+                runGeneration++;
+                hideLoading();
+                setStatus("Cancelled");
+                setRunning(false);
             });
             // ── Divider drag ───────────────────────────────────────────────
             setupDivider();
@@ -71,38 +87,70 @@ WHERE statecode = 0;
         function setupDivider() {
             const divider = document.getElementById("divider");
             const editorPanel = document.getElementById("editorPanel");
+            const gridEl = document.getElementById("grid");
+            const skeletonEl = document.getElementById("resizeSkeleton");
             const mainEl = document.getElementById("main");
             let isDragging = false;
             let startY = 0;
             let startEditorH = 0;
             let editorHeightPx = null; // null → flex layout
+            let gridDisplayBeforeDrag = "";
+            // Cached during drag to avoid forced reflows in pointermove
+            let mainHCached = 0;
+            let divHCached = 0;
+            let latestY = 0;
+            let rafId = null;
+            function applyDrag() {
+                rafId = null;
+                const minH = 80;
+                const newH = Math.max(minH, Math.min(mainHCached - divHCached - minH, startEditorH + (latestY - startY)));
+                editorHeightPx = newH;
+                editorPanel.style.flex = `0 0 ${newH}px`;
+                editor.resize();
+            }
             function stopDrag() {
                 if (!isDragging)
                     return;
                 isDragging = false;
+                if (rafId !== null) {
+                    cancelAnimationFrame(rafId);
+                    rafId = null;
+                }
                 divider.classList.remove("dragging");
+                document.body.style.userSelect = "";
+                document.body.style.cursor = "";
+                // Hide skeleton, restore grid, redraw at final size
+                skeletonEl.style.display = "none";
+                gridEl.style.display = gridDisplayBeforeDrag;
                 editor.resize();
                 table.redraw(true);
             }
             divider.addEventListener("pointerdown", (e) => {
                 isDragging = true;
                 startY = e.clientY;
+                latestY = e.clientY;
                 startEditorH = editorPanel.getBoundingClientRect().height;
+                // Cache these once — they don't change during the drag
+                mainHCached = mainEl.getBoundingClientRect().height;
+                divHCached = divider.offsetHeight;
                 divider.setPointerCapture(e.pointerId);
                 divider.classList.add("dragging");
+                // Lock cursor and selection for the whole document during drag
+                document.body.style.userSelect = "none";
+                document.body.style.cursor = "ns-resize";
+                // Swap grid for skeleton so Tabulator's ResizeObserver stays silent
+                gridDisplayBeforeDrag = gridEl.style.display;
+                gridEl.style.display = "none";
+                skeletonEl.style.display = "flex";
                 e.preventDefault();
             });
             divider.addEventListener("pointermove", (e) => {
                 if (!isDragging)
                     return;
-                const dy = e.clientY - startY;
-                const mainH = mainEl.getBoundingClientRect().height;
-                const divH = divider.offsetHeight;
-                const minH = 80;
-                const newH = Math.max(minH, Math.min(mainH - divH - minH, startEditorH + dy));
-                editorHeightPx = newH;
-                editorPanel.style.flex = `0 0 ${newH}px`;
-                editor.resize();
+                latestY = e.clientY;
+                // Throttle style updates to one per animation frame
+                if (rafId === null)
+                    rafId = requestAnimationFrame(applyDrag);
             });
             divider.addEventListener("pointerup", stopDrag);
             divider.addEventListener("pointercancel", stopDrag);
@@ -127,6 +175,31 @@ WHERE statecode = 0;
         }
         // ── Status / error helpers ─────────────────────────────────────────
         function setStatus(text) { statusEl.textContent = text; }
+        function setRunning(running) {
+            document.getElementById("runBtn").disabled = running;
+            document.getElementById("clearBtn").disabled = running;
+            document.getElementById("formatBtn").disabled = running;
+        }
+        function showLoading() {
+            if (timerInterval !== null) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            const start = Date.now();
+            loadingTimer.textContent = "0s";
+            loadingOverlay.style.display = "flex";
+            timerInterval = window.setInterval(() => {
+                const elapsed = Math.floor((Date.now() - start) / 1000);
+                loadingTimer.textContent = elapsed + "s";
+            }, 500);
+        }
+        function hideLoading() {
+            loadingOverlay.style.display = "none";
+            if (timerInterval !== null) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
         function showError(errText) {
             errorBox.style.display = "block";
             errorBox.textContent = errText;
@@ -174,10 +247,17 @@ WHERE statecode = 0;
             showCommandMessage(null);
             rowsInfo.textContent = `${dataObjects.length} rows`;
         }
-        // ── Query execution (replace with your backend call) ──────────────
+        // ── Query execution ───────────────────────────────────────────────
         async function executeQuery(sqlText) {
+            const requestModel = {
+                sql: sqlText,
+                bypassCustomPlugins: document.getElementById("optBypassPlugins").checked,
+                useLocalTimeZone: document.getElementById("optLocalTime").checked,
+                blockDeleteWithoutWhere: document.getElementById("optBlockDelete").checked,
+                blockUpdateWithoutWhere: document.getElementById("optBlockUpdate").checked
+            };
             const execSqlRequest = {
-                Request: sqlText,
+                Request: JSON.stringify(requestModel),
                 getMetadata: function () {
                     return {
                         boundParameter: null,
@@ -196,13 +276,17 @@ WHERE statecode = 0;
         async function run() {
             clearError();
             setStatus("Running…");
-            document.getElementById("runBtn").disabled = true;
+            setRunning(true);
+            showLoading();
+            const myGen = ++runGeneration;
             const selection = editor.session.getTextRange(editor.getSelectionRange());
             const sqlText = selection.trim() ? selection : editor.getValue();
             try {
                 const t0 = performance.now();
                 const result = await executeQuery(sqlText);
                 const elapsed = (performance.now() - t0).toFixed(0);
+                if (myGen !== runGeneration)
+                    return;
                 if (!result.isSuccess) {
                     showError(result.errorText || "Unknown error");
                     setStatus("Error");
@@ -222,11 +306,16 @@ WHERE statecode = 0;
                 setStatus(`Done in ${elapsed} ms`);
             }
             catch (e) {
+                if (myGen !== runGeneration)
+                    return;
                 showError(e && e.stack ? e.stack : String(e));
                 setStatus("Error");
             }
             finally {
-                document.getElementById("runBtn").disabled = false;
+                if (myGen === runGeneration) {
+                    hideLoading();
+                    setRunning(false);
+                }
             }
         }
     })(SqlEditor = Sql4CdsApp.SqlEditor || (Sql4CdsApp.SqlEditor = {}));
