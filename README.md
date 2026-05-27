@@ -1,6 +1,6 @@
 # Sql4CdsApp
 
-A **Dataverse plugin and web resource wrapper** around [Sql4Cds](https://github.com/MarkMpn/Sql4Cds) that enables running SQL queries against Dataverse directly from the **model-driven app web UI**.
+A **Dataverse plugin and web resource wrapper** around [Sql4Cds](https://github.com/MarkMpn/Sql4Cds) that enables running SQL queries against Dataverse directly from the **model-driven app web UI** without any external dependencies and configuration required.
 
 ![Sql4CdsApp Screenshot](Docs/screenshot.png)
 
