@@ -22,13 +22,19 @@ var Sql4CdsApp;
             });
             editor.setValue(`-- Write SQL here.
 -- Ctrl+Enter to run.
-SELECT
-  accountid,
-  name
+SELECT TOP 100
+  a.accountid,
+  a.name,
+  a.parentaccountid,
+  a.parentaccountidname,
+  c.fullname
 FROM
-  account
+  account a
+  left join contact c on c.contactid = a.primarycontactid
 WHERE
-  statecode = 0;
+  a.statecode = 0
+ORDER BY
+  a.name
     `, -1);
             editor.commands.addCommand({
                 name: "runQuery",
