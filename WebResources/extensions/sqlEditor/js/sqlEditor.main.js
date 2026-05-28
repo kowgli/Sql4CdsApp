@@ -8,6 +8,9 @@ var Sql4CdsApp;
         let table, statusEl, errorBox, rowsInfo, commandMessage, loadingOverlay, loadingTimer;
         let runGeneration = 0;
         let timerInterval = null;
+        // Object explorer (metadata) state
+        let metaTreeEl, refreshMetaBtn, metaSearchInput;
+        const attributeCache = {};
         function onLoad() {
             // ── Ace setup ──────────────────────────────────────────────────
             editor = ace.edit("editor");
@@ -85,10 +88,87 @@ ORDER BY
             });
             // ── Divider drag ───────────────────────────────────────────────
             setupDivider();
+            // ── Object explorer (metadata tree) ────────────────────────────
+            metaTreeEl = document.getElementById("metaTree");
+            refreshMetaBtn = document.getElementById("refreshMetaBtn");
+            refreshMetaBtn.addEventListener("click", () => { void refreshMetadata(); });
+            setupMetaSearch();
+            setupMetaDivider();
+            void initMetadata(); // async, non-blocking — the rest of the page stays usable
             // ── Window resize: reclamp and redraw ──────────────────────────
             window.addEventListener("resize", onWindowResize);
         }
         SqlEditor.onLoad = onLoad;
+        // ── Object explorer / metadata divider (horizontal width drag) ──────
+        function setupMetaDivider() {
+            const divider = document.getElementById("metaDivider");
+            const panel = document.getElementById("metadataPanel");
+            const container = document.getElementById("app"); // holds [panel | divider | right pane]
+            let isDragging = false;
+            let startX = 0;
+            let startW = 0;
+            let wsWCached = 0;
+            let latestX = 0;
+            let rafId = null;
+            let widthPx = null;
+            function applyDrag() {
+                rafId = null;
+                const minW = 160;
+                const maxW = Math.max(minW, wsWCached - 240);
+                const newW = Math.max(minW, Math.min(maxW, startW + (latestX - startX)));
+                widthPx = newW;
+                panel.style.flex = `0 0 ${newW}px`;
+                editor.resize();
+            }
+            function stopDrag() {
+                if (!isDragging)
+                    return;
+                isDragging = false;
+                if (rafId !== null) {
+                    cancelAnimationFrame(rafId);
+                    rafId = null;
+                }
+                divider.classList.remove("dragging");
+                document.body.style.userSelect = "";
+                document.body.style.cursor = "";
+                editor.resize();
+                table.redraw(true);
+            }
+            divider.addEventListener("pointerdown", (e) => {
+                isDragging = true;
+                startX = e.clientX;
+                latestX = e.clientX;
+                startW = panel.getBoundingClientRect().width;
+                wsWCached = container.getBoundingClientRect().width;
+                divider.setPointerCapture(e.pointerId);
+                divider.classList.add("dragging");
+                document.body.style.userSelect = "none";
+                document.body.style.cursor = "ew-resize";
+                e.preventDefault();
+            });
+            divider.addEventListener("pointermove", (e) => {
+                if (!isDragging)
+                    return;
+                latestX = e.clientX;
+                if (rafId === null)
+                    rafId = requestAnimationFrame(applyDrag);
+            });
+            divider.addEventListener("pointerup", stopDrag);
+            divider.addEventListener("pointercancel", stopDrag);
+            divider.addEventListener("lostpointercapture", stopDrag);
+            window.addEventListener("blur", stopDrag);
+            // Reclamp stored width when the host frame is resized
+            window.addEventListener("resize", () => {
+                if (widthPx === null)
+                    return;
+                const wsW = container.getBoundingClientRect().width;
+                const maxW = wsW - 240;
+                if (widthPx > maxW) {
+                    widthPx = Math.max(160, maxW);
+                    panel.style.flex = `0 0 ${widthPx}px`;
+                }
+            });
+        }
         // ── Divider / splitter ─────────────────────────────────────────────
         function setupDivider() {
             const divider = document.getElementById("divider");
@@ -323,6 +403,224 @@ ORDER BY
                     setRunning(false);
                 }
             }
+        }
+        // ── Object explorer / metadata ──────────────────────────────────────
+        const ICON_TABLE = '<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">' +
+            '<path d="M1.5 2h13v12h-13V2zm1 1v2.5h11V3h-11zm0 3.5V9h4V6.5h-4zm5 0V9h6V6.5h-6zm-5 3.5v3h4v-3h-4zm5 0v3h6v-3h-6z"/></svg>';
+        const ICON_FIELD = '<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">' +
+            '<circle cx="8" cy="8" r="3.25"/></svg>';
+        async function fetchMetadata(path) {
+            const clientUrl = Xrm.Utility.getGlobalContext().getClientUrl();
+            const resp = await fetch(clientUrl + "/api/data/v9.2/" + path, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                    "OData-MaxVersion": "4.0",
+                    "OData-Version": "4.0"
+                }
+            });
+            if (!resp.ok)
+                throw new Error("Metadata request failed: " + resp.status + " " + resp.statusText);
+            return resp.json();
+        }
+        function bySchemaName(a, b) {
+            return String(a.SchemaName).toLowerCase().localeCompare(String(b.SchemaName).toLowerCase());
+        }
+        function setMetaTreeMessage(kind, text) {
+            const cls = kind === "error" ? "meta-error" : "meta-loading";
+            const spinner = kind === "loading" ? '<span class="meta-spinner"></span>' : "";
+            const span = document.createElement("span");
+            span.textContent = text;
+            metaTreeEl.innerHTML = '<div class="' + cls + '">' + spinner + '</div>';
+            metaTreeEl.firstElementChild.appendChild(span);
+        }
+        async function initMetadata() {
+            setMetaTreeMessage("loading", "Loading tables…");
+            refreshMetaBtn.disabled = true;
+            refreshMetaBtn.classList.add("spinning");
+            try {
+                const data = await fetchMetadata("EntityDefinitions?$select=LogicalName,SchemaName");
+                const entities = (data.value || []).filter(e => e.SchemaName).sort(bySchemaName);
+                renderTables(entities);
+            }
+            catch (err) {
+                setMetaTreeMessage("error", "Failed to load tables. Click ⟳ to retry.");
+            }
+            finally {
+                refreshMetaBtn.disabled = false;
+                refreshMetaBtn.classList.remove("spinning");
+            }
+        }
+        async function refreshMetadata() {
+            for (const k in attributeCache)
+                delete attributeCache[k];
+            await initMetadata();
+        }
+        // ── Object explorer search / filter ─────────────────────────────────
+        function setupMetaSearch() {
+            metaSearchInput = document.getElementById("metaSearch");
+            const wrap = metaSearchInput.parentElement;
+            const clearBtn = document.getElementById("metaSearchClear");
+            let raf = null;
+            function schedule() {
+                wrap.classList.toggle("has-text", metaSearchInput.value.length > 0);
+                if (raf !== null)
+                    cancelAnimationFrame(raf);
+                raf = requestAnimationFrame(() => { raf = null; applyFilter(metaSearchInput.value); });
+            }
+            metaSearchInput.addEventListener("input", schedule);
+            metaSearchInput.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") {
+                    metaSearchInput.value = "";
+                    schedule();
+                }
+            });
+            clearBtn.addEventListener("click", () => {
+                metaSearchInput.value = "";
+                schedule();
+                metaSearchInput.focus();
+            });
+        }
+        // Filters the rendered tree. Tables always match by name; fields are
+        // filtered for tables whose columns are already loaded (lazy-loaded ones
+        // only match by table name until expanded once).
+        function applyFilter(query) {
+            const q = query.trim().toLowerCase();
+            const nodes = metaTreeEl.querySelectorAll(".tree-node");
+            nodes.forEach(node => {
+                const tableRow = node.querySelector(".tree-table-row");
+                if (!tableRow)
+                    return;
+                const tlabelEl = tableRow.querySelector(".tree-label");
+                const tlabel = tlabelEl && tlabelEl.textContent ? tlabelEl.textContent.toLowerCase() : "";
+                const tableMatch = q === "" || tlabel.indexOf(q) !== -1;
+                const children = node.querySelector(".tree-children");
+                const fieldRows = node.querySelectorAll(".tree-field-row");
+                let anyFieldMatch = false;
+                fieldRows.forEach(fr => {
+                    const fl = fr.querySelector(".tree-label");
+                    let show;
+                    if (q === "" || tableMatch) {
+                        show = true;
+                    }
+                    else if (fl && fl.textContent) {
+                        const matched = fl.textContent.toLowerCase().indexOf(q) !== -1;
+                        show = matched;
+                        if (matched)
+                            anyFieldMatch = true;
+                    }
+                    else {
+                        show = false; // hide "No columns" / error rows while searching
+                    }
+                    fr.classList.toggle("tree-hidden", !show);
+                });
+                node.classList.toggle("tree-hidden", !(tableMatch || anyFieldMatch));
+                // Reveal a matching column by expanding its (already loaded) table
+                if (q !== "" && anyFieldMatch && children) {
+                    node.classList.add("expanded");
+                    children.style.display = "";
+                }
+            });
+            // Short, subtle fade so the result update feels smooth
+            if (typeof metaTreeEl.animate === "function") {
+                metaTreeEl.animate([{ opacity: 0.55 }, { opacity: 1 }], { duration: 130, easing: "ease-out" });
+            }
+        }
+        function reapplyFilter() {
+            if (metaSearchInput && metaSearchInput.value)
+                applyFilter(metaSearchInput.value);
+        }
+        function renderTables(entities) {
+            metaTreeEl.innerHTML = "";
+            if (entities.length === 0) {
+                setMetaTreeMessage("empty", "No tables found");
+                return;
+            }
+            const frag = document.createDocumentFragment();
+            for (const ent of entities)
+                frag.appendChild(buildTableNode(ent));
+            metaTreeEl.appendChild(frag);
+            reapplyFilter();
+        }
+        function buildTableNode(ent) {
+            const name = (ent.SchemaName || "").toLowerCase();
+            const node = document.createElement("div");
+            node.className = "tree-node";
+            const row = document.createElement("div");
+            row.className = "tree-row tree-table-row";
+            row.title = ent.LogicalName;
+            const twisty = document.createElement("span");
+            twisty.className = "tree-twisty";
+            const icon = document.createElement("span");
+            icon.className = "tree-icon tree-icon-table";
+            icon.innerHTML = ICON_TABLE;
+            const label = document.createElement("span");
+            label.className = "tree-label";
+            label.textContent = name;
+            row.appendChild(twisty);
+            row.appendChild(icon);
+            row.appendChild(label);
+            const children = document.createElement("div");
+            children.className = "tree-children";
+            children.style.display = "none";
+            row.addEventListener("click", (e) => {
+                if (e.detail > 1)
+                    return; // ignore the 2nd click of a double-click (which inserts)
+                const isExpanded = node.classList.toggle("expanded");
+                children.style.display = isExpanded ? "" : "none";
+                if (isExpanded && !node.dataset.loaded) {
+                    node.dataset.loaded = "1";
+                    loadFields(ent, children).catch(() => {
+                        delete node.dataset.loaded; // allow a retry on next expand
+                        children.innerHTML = '<div class="tree-error tree-field-row">Failed to load columns</div>';
+                    });
+                }
+            });
+            row.addEventListener("dblclick", () => insertIntoEditor(name));
+            node.appendChild(row);
+            node.appendChild(children);
+            return node;
+        }
+        async function loadFields(ent, children) {
+            children.innerHTML =
+                '<div class="tree-loading tree-field-row"><span class="tree-spinner"></span><span>Loading…</span></div>';
+            let attrs = attributeCache[ent.LogicalName];
+            if (!attrs) {
+                const data = await fetchMetadata("EntityDefinitions(LogicalName='" + ent.LogicalName +
+                    "')/Attributes?$select=LogicalName,SchemaName,AttributeType");
+                attrs = (data.value || []).filter(a => a.SchemaName).sort(bySchemaName);
+                attributeCache[ent.LogicalName] = attrs; // cache once loaded
+            }
+            children.innerHTML = "";
+            if (attrs.length === 0) {
+                children.innerHTML = '<div class="tree-empty tree-field-row">No columns</div>';
+                return;
+            }
+            const frag = document.createDocumentFragment();
+            for (const attr of attrs)
+                frag.appendChild(buildFieldNode(attr));
+            children.appendChild(frag);
+            reapplyFilter();
+        }
+        function buildFieldNode(attr) {
+            const name = (attr.SchemaName || "").toLowerCase();
+            const row = document.createElement("div");
+            row.className = "tree-row tree-field-row";
+            row.title = attr.LogicalName + (attr.AttributeType ? "  (" + attr.AttributeType + ")" : "");
+            const icon = document.createElement("span");
+            icon.className = "tree-icon tree-icon-field";
+            icon.innerHTML = ICON_FIELD;
+            const label = document.createElement("span");
+            label.className = "tree-label";
+            label.textContent = name;
+            row.appendChild(icon);
+            row.appendChild(label);
+            row.addEventListener("dblclick", () => insertIntoEditor(name));
+            return row;
+        }
+        function insertIntoEditor(text) {
+            editor.session.insert(editor.getCursorPosition(), text);
+            editor.focus();
         }
     })(SqlEditor = Sql4CdsApp.SqlEditor || (Sql4CdsApp.SqlEditor = {}));
 })(Sql4CdsApp || (Sql4CdsApp = {}));

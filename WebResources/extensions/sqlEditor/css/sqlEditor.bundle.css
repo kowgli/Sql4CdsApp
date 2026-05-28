@@ -26,11 +26,21 @@ html, body {
     color: var(--f-text);
 }
 
-/* ── App shell ── */
+/* ── App shell (object explorer | right pane) ── */
 #app {
     height: 100%;
     display: flex;
+    flex-direction: row;
+}
+
+/* Right pane: command bar on top, editor + results below */
+#rightPane {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 /* ── Command bar (Fluent) ── */
@@ -436,4 +446,249 @@ html, body {
     font-size: 14px !important;
     font-weight: 400 !important;
 }
+
+/* The vertical editor/results stack fills the right pane below the toolbar */
+#main {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+/* ── Object explorer panel (narrow, full-height, left side) ── */
+#metadataPanel {
+    flex: 0 0 220px;
+    min-width: 140px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.meta-header {
+    justify-content: space-between;
+}
+
+/* ── Object explorer search box ── */
+.meta-search {
+    flex: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--f-border);
+}
+
+.meta-search-icon {
+    position: absolute;
+    left: 16px;
+    color: var(--f-muted);
+    pointer-events: none;
+}
+
+#metaSearch {
+    flex: 1;
+    height: 28px;
+    box-sizing: border-box;
+    padding: 0 28px;
+    border: 1px solid var(--f-border);
+    border-radius: 2px;
+    font-family: var(--font);
+    font-size: 13px;
+    color: var(--f-text);
+    background: var(--f-surface);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+    #metaSearch::placeholder { color: var(--f-muted); }
+
+    #metaSearch:focus {
+        border-color: var(--f-primary);
+        box-shadow: 0 0 0 1px var(--f-primary);
+    }
+
+.meta-search-clear {
+    position: absolute;
+    right: 14px;
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--f-muted);
+    cursor: pointer;
+    /* hidden until there is text — animates in */
+    opacity: 0;
+    transform: scale(0.6);
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+    .meta-search.has-text .meta-search-clear {
+        opacity: 1;
+        transform: scale(1);
+        pointer-events: auto;
+    }
+
+    .meta-search-clear:hover { background: var(--f-hover); color: var(--f-text); }
+
+/* Rows filtered out by the search */
+.tree-hidden { display: none !important; }
+
+.meta-refresh-btn {
+    appearance: none;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    background: transparent;
+    color: var(--f-muted);
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+    flex: none;
+}
+
+    .meta-refresh-btn:hover { background: var(--f-hover); color: var(--f-text); }
+    .meta-refresh-btn:active { background: var(--f-pressed); }
+    .meta-refresh-btn:disabled { opacity: 0.5; cursor: default; }
+    .meta-refresh-btn.spinning svg { animation: spin 0.8s linear infinite; }
+
+/* ── Object explorer tree ── */
+#metaTree {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 4px 0;
+    font-size: 13px;
+    user-select: none;
+}
+
+.tree-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    height: 24px;
+    padding: 0 8px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+    .tree-row:hover { background: var(--f-hover); }
+
+/* Fields are indented under their table */
+.tree-field-row {
+    padding-left: 32px;
+    cursor: default;
+}
+
+.tree-twisty {
+    flex: none;
+    width: 12px;
+    height: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--f-muted);
+    transition: transform 0.12s ease;
+}
+
+    .tree-twisty::before {
+        content: '';
+        width: 0;
+        height: 0;
+        border-left: 4px solid currentColor;
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+    }
+
+.tree-node.expanded > .tree-row .tree-twisty {
+    transform: rotate(90deg);
+}
+
+.tree-icon {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tree-icon-table { color: var(--f-primary); }
+.tree-icon-field { color: #8a8886; }
+
+.tree-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Tree messages: loading / empty / error */
+.meta-loading,
+.tree-loading,
+.tree-empty,
+.meta-error,
+.tree-error {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    color: var(--f-muted);
+    font-size: 12px;
+}
+
+.tree-empty,
+.tree-error {
+    padding: 6px 12px 6px 32px;
+}
+
+.meta-error,
+.tree-error { color: var(--f-danger); }
+
+.meta-spinner,
+.tree-spinner {
+    flex: none;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--f-border);
+    border-top-color: var(--f-primary);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+.meta-spinner {
+    width: 18px;
+    height: 18px;
+}
+
+/* ── Object explorer divider (horizontal width drag) ── */
+#metaDivider {
+    flex: none;
+    width: 8px;
+    position: relative;
+    cursor: ew-resize;
+    touch-action: none;
+    background: transparent;
+    z-index: 10;
+}
+
+    #metaDivider::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 1px;
+        transform: translateX(-50%);
+        background: var(--f-border);
+        transition: background 0.15s, width 0.1s;
+    }
+
+    #metaDivider:hover::after,
+    #metaDivider.dragging::after {
+        width: 3px;
+        background: var(--f-primary);
+    }
 
