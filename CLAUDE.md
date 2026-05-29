@@ -28,6 +28,12 @@ Unit tests that call `OrgService` or `OrgServiceWrapper` (live CRM) require a va
 - Bundle: run `__GENERATE_BUNDLES.bat`
 - Sync to CRM: run `__SYNC WEB RESOURCES.bat` (uses `web-resource-mappings.json` for source→target mapping and connection string)
 
+> **RULE — edit source files only.** When working on web resources, only edit the **source** files:
+> `*.main.ts`, `*.main.css`, and `*.html`. **Never** edit generated/derived files
+> (`*.main.js`, `*.main.js.map`, `*.bundle.js`, `*.bundle.css`, `*.bundle.min.js`, `*.bundle.min.css`),
+> **never** run the bundle generator (`__GENERATE_BUNDLES.bat` / WebResourceManager), and **never** deploy/sync
+> (`__SYNC WEB RESOURCES.bat`). The user runs compile, bundle, and deploy themselves.
+
 ---
 
 ## Architecture Overview

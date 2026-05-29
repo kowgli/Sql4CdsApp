@@ -6,24 +6,13 @@ var Sql4CdsApp;
     (function (SqlEditor) {
         let editor;
         let table, statusEl, errorBox, rowsInfo, commandMessage, loadingOverlay, loadingTimer;
-        let runGeneration = 0;
         let timerInterval = null;
-        // Object explorer (metadata) state
-        let metaTreeEl, refreshMetaBtn, metaSearchInput;
-        const attributeCache = {};
-        function onLoad() {
-            // ── Ace setup ──────────────────────────────────────────────────
-            editor = ace.edit("editor");
-            editor.session.setMode("ace/mode/sql");
-            editor.setTheme("ace/theme/sqlserver");
-            editor.setOptions({
-                fontSize: "13px",
-                showPrintMargin: false,
-                wrap: true,
-                tabSize: 2,
-                useSoftTabs: true
-            });
-            editor.setValue(`-- Write SQL here.
+        let tabs = [];
+        let activeTabId = -1;
+        let tabSeq = 0;
+        let tabListEl;
+        let tableBuilt = false; // Tabulator builds asynchronously; guard grid calls until then
+        const DEFAULT_SQL = `-- Write SQL here.
 -- Ctrl+Enter to run.
 SELECT TOP 100
   a.accountid,
@@ -38,12 +27,33 @@ WHERE
   a.statecode = 0
 ORDER BY
   a.name
-    `, -1);
+`;
+        // Object explorer (metadata) state
+        let metaTreeEl, refreshMetaBtn, metaSearchInput;
+        const attributeCache = {};
+        let entityList = []; // all tables, kept for autocomplete
+        let entityByName = {}; // lowercased SchemaName -> entity
+        let autoSuggestOn = true; // live autocomplete + dot trigger (toolbar toggle)
+        function onLoad() {
+            // ── Ace setup (single editor; sessions are swapped per tab) ─────
+            editor = ace.edit("editor");
+            editor.setTheme("ace/theme/sqlserver");
+            editor.setOptions({
+                fontSize: "13px",
+                showPrintMargin: false
+            });
             editor.commands.addCommand({
                 name: "runQuery",
                 bindKey: { win: "Ctrl-Enter", mac: "Command-Enter" },
                 exec: () => run()
             });
+            editor.commands.addCommand({
+                name: "newTab",
+                bindKey: { win: "Ctrl-T", mac: "Command-T" },
+                exec: () => newTab()
+            });
+            // ── Autocomplete (keywords / tables / columns) ─────────────────
+            setupAutocomplete();
             // ── Tabulator setup ────────────────────────────────────────────
             table = new Tabulator("#grid", {
                 layout: "fitDataFill",
@@ -52,6 +62,11 @@ ORDER BY
                 selectable: true,
                 clipboard: true
             });
+            // Tabulator builds asynchronously — only touch the grid once it has.
+            table.on("tableBuilt", () => {
+                tableBuilt = true;
+                renderActiveTab();
+            });
             // ── UI helpers ─────────────────────────────────────────────────
             statusEl = document.getElementById("status");
             errorBox = document.getElementById("errorBox");
@@ -59,15 +74,28 @@ ORDER BY
             commandMessage = document.getElementById("commandMessage");
             loadingOverlay = document.getElementById("loadingOverlay");
             loadingTimer = document.getElementById("loadingTimer");
-            // ── Toolbar events ─────────────────────────────────────────────
+            tabListEl = document.getElementById("tabList");
+            // ── Toolbar / tab events (wired before first render so they always attach) ──
             document.getElementById("runBtn").addEventListener("click", run);
+            document.getElementById("newTabBtn").addEventListener("click", newTab);
+            const autoChk = document.getElementById("optAutoSuggest");
+            autoSuggestOn = autoChk.checked; // default checked
+            autoChk.addEventListener("change", () => {
+                autoSuggestOn = autoChk.checked;
+                editor.setOptions({ enableLiveAutocompletion: autoSuggestOn });
+                // The afterExec dot handler is gated by autoSuggestOn, so it follows the toggle.
+            });
             document.getElementById("clearBtn").addEventListener("click", () => {
-                table.clearData();
-                table.setColumns([]);
-                showCommandMessage(null);
-                rowsInfo.textContent = "";
-                setStatus("Cleared");
-                clearError();
+                const tab = getActiveTab();
+                if (!tab)
+                    return;
+                tab.columns = null;
+                tab.data = null;
+                tab.commandMsg = null;
+                tab.errorText = null;
+                tab.rowsInfoText = "";
+                tab.statusText = "Cleared";
+                renderActiveTab();
             });
             document.getElementById("formatBtn").addEventListener("click", () => {
                 const sql = editor.getValue();
@@ -81,10 +109,17 @@ ORDER BY
                 }
             });
             document.getElementById("cancelBtn").addEventListener("click", () => {
-                runGeneration++;
+                const tab = getActiveTab();
+                if (!tab)
+                    return;
+                tab.runGen++; // invalidate the in-flight run
+                tab.running = false;
+                tab.loadStart = null;
+                tab.statusText = "Cancelled";
                 hideLoading();
                 setStatus("Cancelled");
                 setRunning(false);
+                updateTabStrip();
             });
             // ── Divider drag ───────────────────────────────────────────────
             setupDivider();
@@ -94,11 +129,191 @@ ORDER BY
             refreshMetaBtn.addEventListener("click", () => { void refreshMetadata(); });
             setupMetaSearch();
             setupMetaDivider();
+            setupMetaCollapse();
             void initMetadata(); // async, non-blocking — the rest of the page stays usable
             // ── Window resize: reclamp and redraw ──────────────────────────
             window.addEventListener("resize", onWindowResize);
+            // ── Initial tab (after everything is wired) ─────────────────────
+            const first = createTab(DEFAULT_SQL);
+            activeTabId = first.id;
+            editor.setSession(first.session);
+            updateTabStrip();
+            renderActiveTab(); // grid portion is deferred until tableBuilt fires
         }
         SqlEditor.onLoad = onLoad;
+        // ── Tab management ──────────────────────────────────────────────────
+        function getActiveTab() {
+            return tabs.filter(t => t.id === activeTabId)[0];
+        }
+        function makeSession(sql) {
+            const session = ace.createEditSession(sql);
+            session.setMode("ace/mode/sql");
+            session.setUseWrapMode(true);
+            session.setTabSize(2);
+            session.setUseSoftTabs(true);
+            return session;
+        }
+        function createTab(initialSql) {
+            const id = ++tabSeq;
+            const session = makeSession(initialSql);
+            const tab = {
+                id,
+                title: "Query " + id,
+                session,
+                columns: null,
+                data: null,
+                commandMsg: null,
+                rowsInfoText: "",
+                errorText: null,
+                statusText: "Ready",
+                running: false,
+                runGen: 0,
+                loadStart: null
+            };
+            tabs.push(tab);
+            return tab;
+        }
+        function newTab() {
+            const tab = createTab("-- New query\n");
+            activeTabId = tab.id;
+            editor.setSession(tab.session);
+            updateTabStrip();
+            renderActiveTab();
+            editor.focus();
+        }
+        function switchToTab(id) {
+            if (id === activeTabId)
+                return;
+            const tab = tabs.filter(t => t.id === id)[0];
+            if (!tab)
+                return;
+            activeTabId = id;
+            editor.setSession(tab.session);
+            updateTabStrip();
+            renderActiveTab();
+            editor.focus();
+        }
+        function closeTab(id) {
+            let idx = -1;
+            for (let i = 0; i < tabs.length; i++) {
+                if (tabs[i].id === id) {
+                    idx = i;
+                    break;
+                }
+            }
+            if (idx === -1)
+                return;
+            const tab = tabs[idx];
+            tab.runGen++; // invalidate any in-flight query on this tab
+            // Closing the only tab: reset it in place to a fresh blank document
+            // (keeps its number rather than spawning an incremented one).
+            if (tabs.length === 1) {
+                tab.session = makeSession("-- New query\n");
+                tab.columns = null;
+                tab.data = null;
+                tab.commandMsg = null;
+                tab.errorText = null;
+                tab.rowsInfoText = "";
+                tab.statusText = "Ready";
+                tab.running = false;
+                tab.loadStart = null;
+                editor.setSession(tab.session);
+                updateTabStrip();
+                renderActiveTab();
+                editor.focus();
+                return;
+            }
+            const wasActive = (id === activeTabId);
+            tabs.splice(idx, 1);
+            if (wasActive) {
+                const next = tabs[Math.min(idx, tabs.length - 1)];
+                activeTabId = next.id;
+                editor.setSession(next.session);
+            }
+            updateTabStrip();
+            if (wasActive)
+                renderActiveTab();
+        }
+        function updateTabStrip() {
+            tabListEl.innerHTML = "";
+            const frag = document.createDocumentFragment();
+            for (const tab of tabs)
+                frag.appendChild(buildTabEl(tab));
+            tabListEl.appendChild(frag);
+            // Keep the active tab in view if the strip overflows
+            const activeEl = tabListEl.querySelector(".tab.active");
+            if (activeEl && typeof activeEl.scrollIntoView === "function") {
+                activeEl.scrollIntoView({ inline: "nearest", block: "nearest" });
+            }
+        }
+        function buildTabEl(tab) {
+            const el = document.createElement("div");
+            el.className = "tab" + (tab.id === activeTabId ? " active" : "");
+            el.dataset.id = String(tab.id);
+            el.title = tab.title;
+            if (tab.running) {
+                const sp = document.createElement("span");
+                sp.className = "tab-spinner";
+                el.appendChild(sp);
+            }
+            const titleEl = document.createElement("span");
+            titleEl.className = "tab-title";
+            titleEl.textContent = tab.title;
+            el.appendChild(titleEl);
+            const close = document.createElement("button");
+            close.className = "tab-close";
+            close.title = "Close";
+            close.setAttribute("aria-label", "Close " + tab.title);
+            close.innerHTML = ICON_CLOSE;
+            el.appendChild(close);
+            el.addEventListener("mousedown", (e) => {
+                if (e.button === 1) {
+                    e.preventDefault();
+                    closeTab(tab.id);
+                } // middle-click closes
+                else if (e.button === 0)
+                    switchToTab(tab.id);
+            });
+            close.addEventListener("mousedown", (e) => e.stopPropagation());
+            close.addEventListener("click", (e) => {
+                e.stopPropagation();
+                closeTab(tab.id);
+            });
+            return el;
+        }
+        // Sync all shared UI (editor session, grid, status, overlay) to the
+        // currently active tab's stored state.
+        function renderActiveTab() {
+            const tab = getActiveTab();
+            if (!tab)
+                return;
+            if (editor.session !== tab.session)
+                editor.setSession(tab.session);
+            if (tab.errorText)
+                showError(tab.errorText);
+            else
+                clearError();
+            if (tab.commandMsg)
+                showCommandMessage(tab.commandMsg);
+            else
+                showCommandMessage(null);
+            // Grid calls are only safe after Tabulator has finished building;
+            // the "tableBuilt" handler re-runs this once it's ready.
+            if (tableBuilt) {
+                table.setColumns(tab.columns || []);
+                table.setData(tab.data || []);
+            }
+            rowsInfo.textContent = tab.rowsInfoText || "";
+            setStatus(tab.statusText || "Ready");
+            setRunning(tab.running);
+            if (tab.running)
+                showLoading();
+            else
+                hideLoading();
+            editor.resize();
+            if (tableBuilt)
+                table.redraw(true);
+        }
         // ── Object explorer / metadata divider (horizontal width drag) ──────
         function setupMetaDivider() {
             const divider = document.getElementById("metaDivider");
@@ -168,6 +383,74 @@ ORDER BY
                     panel.style.flex = `0 0 ${widthPx}px`;
                 }
             });
+        }
+        // ── Object explorer collapse / minimize ─────────────────────────────
+        // Slides the explorer panel's flex-basis to 0 and swaps in a thin rail on
+        // the far left. The transition is class-gated so it never fires during
+        // divider drags; the editor is resized each animation frame for smoothness.
+        function setupMetaCollapse() {
+            const panel = document.getElementById("metadataPanel");
+            const rail = document.getElementById("metaRail");
+            const divider = document.getElementById("metaDivider");
+            const collapseBtn = document.getElementById("collapseMetaBtn");
+            const expandBtn = document.getElementById("expandMetaBtn");
+            const railLabel = rail.querySelector(".meta-rail-label");
+            const DURATION = 220;
+            let collapsed = false;
+            let expandedWidth = 220;
+            function animateEditorDuring(duration) {
+                const end = performance.now() + duration;
+                (function step() {
+                    editor.resize();
+                    if (performance.now() < end)
+                        requestAnimationFrame(step);
+                    else
+                        table.redraw(true);
+                })();
+            }
+            function collapse() {
+                if (collapsed)
+                    return;
+                collapsed = true;
+                expandedWidth = Math.max(160, Math.round(panel.getBoundingClientRect().width));
+                // Pin the current width, force reflow, then animate to 0.
+                panel.style.flex = `0 0 ${expandedWidth}px`;
+                void panel.offsetWidth;
+                panel.classList.add("meta-animating");
+                panel.style.flex = "0 0 0px";
+                divider.style.display = "none";
+                animateEditorDuring(DURATION);
+                window.setTimeout(() => {
+                    panel.classList.remove("meta-animating");
+                    panel.classList.add("meta-collapsed");
+                    rail.classList.add("show");
+                    editor.resize();
+                    table.redraw(true);
+                }, DURATION + 20);
+            }
+            function expand() {
+                if (!collapsed)
+                    return;
+                collapsed = false;
+                rail.classList.remove("show");
+                panel.classList.remove("meta-collapsed");
+                // Start from 0, force reflow, then animate back to the saved width.
+                panel.style.flex = "0 0 0px";
+                void panel.offsetWidth;
+                panel.classList.add("meta-animating");
+                panel.style.flex = `0 0 ${expandedWidth}px`;
+                divider.style.display = "";
+                animateEditorDuring(DURATION);
+                window.setTimeout(() => {
+                    panel.classList.remove("meta-animating");
+                    editor.resize();
+                    table.redraw(true);
+                }, DURATION + 20);
+            }
+            collapseBtn.addEventListener("click", collapse);
+            expandBtn.addEventListener("click", expand);
+            if (railLabel)
+                railLabel.addEventListener("click", expand);
         }
         // ── Divider / splitter ─────────────────────────────────────────────
         function setupDivider() {
@@ -266,18 +549,21 @@ ORDER BY
             document.getElementById("clearBtn").disabled = running;
             document.getElementById("formatBtn").disabled = running;
         }
+        // Shows the overlay for the active tab and (re)starts the elapsed timer.
+        // The timer reads the active tab's loadStart so switching tabs shows the
+        // correct elapsed time for whichever query is currently in view.
         function showLoading() {
-            if (timerInterval !== null) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-            }
-            const start = Date.now();
-            loadingTimer.textContent = "0s";
             loadingOverlay.style.display = "flex";
-            timerInterval = window.setInterval(() => {
-                const elapsed = Math.floor((Date.now() - start) / 1000);
-                loadingTimer.textContent = elapsed + "s";
-            }, 500);
+            updateLoadingTimer();
+            if (timerInterval === null) {
+                timerInterval = window.setInterval(updateLoadingTimer, 250);
+            }
+        }
+        function updateLoadingTimer() {
+            const tab = getActiveTab();
+            if (tab && tab.running && tab.loadStart) {
+                loadingTimer.textContent = Math.floor((Date.now() - tab.loadStart) / 1000) + "s";
+            }
         }
         function hideLoading() {
             loadingOverlay.style.display = "none";
@@ -308,30 +594,29 @@ ORDER BY
                 document.getElementById("grid").style.display = "";
             }
         }
-        function setGridFromResult(result) {
+        // Builds Tabulator column defs + row objects from a query result, without
+        // touching the live grid (so it can be stored on a tab and rendered later).
+        function buildGridModel(result) {
             const cols = result.columns || [];
             const rows = result.rows || [];
-            const tabColumns = cols.map(c => ({
+            const columns = cols.map(c => ({
                 title: c,
                 field: c,
                 headerSort: true,
                 resizable: true
             }));
-            let dataObjects;
+            let data;
             if (rows.length > 0 && Array.isArray(rows[0])) {
-                dataObjects = rows.map(r => {
+                data = rows.map(r => {
                     const o = {};
                     cols.forEach((c, i) => o[c] = r[i]);
                     return o;
                 });
             }
             else {
-                dataObjects = rows;
+                data = rows;
             }
-            table.setColumns(tabColumns);
-            table.setData(dataObjects);
-            showCommandMessage(null);
-            rowsInfo.textContent = `${dataObjects.length} rows`;
+            return { columns, data };
         }
         // ── Query execution ───────────────────────────────────────────────
         async function executeQuery(sqlText) {
@@ -359,48 +644,71 @@ ORDER BY
             return JSON.parse(actionResponse.Response);
         }
         // ── Run flow ───────────────────────────────────────────────────────
+        // Runs the active tab's query. Results are stored on the tab, so a query
+        // started on one tab keeps running in the background when the user switches
+        // to another; the UI only reflects it while that tab is active.
         async function run() {
-            clearError();
-            setStatus("Running…");
-            setRunning(true);
-            showLoading();
-            const myGen = ++runGeneration;
+            const tab = getActiveTab();
+            if (!tab)
+                return;
             const selection = editor.session.getTextRange(editor.getSelectionRange());
             const sqlText = selection.trim() ? selection : editor.getValue();
+            tab.errorText = null;
+            tab.commandMsg = null;
+            tab.statusText = "Running…";
+            tab.running = true;
+            tab.loadStart = Date.now();
+            const myGen = ++tab.runGen;
+            if (tab.id === activeTabId) {
+                clearError();
+                setStatus("Running…");
+                setRunning(true);
+                showLoading();
+            }
+            updateTabStrip();
             try {
                 const t0 = performance.now();
                 const result = await executeQuery(sqlText);
                 const elapsed = (performance.now() - t0).toFixed(0);
-                if (myGen !== runGeneration)
-                    return;
+                if (tab.runGen !== myGen)
+                    return; // cancelled, closed, or superseded
+                tab.running = false;
+                tab.loadStart = null;
                 if (!result.isSuccess) {
-                    showError(result.errorText || "Unknown error");
-                    setStatus("Error");
-                    return;
+                    tab.errorText = result.errorText || "Unknown error";
+                    tab.statusText = "Error";
                 }
-                if (result.emptyResult) {
-                    table.clearData();
-                    table.setColumns([]);
-                    showCommandMessage("Command executed successfully");
-                    rowsInfo.textContent = result.recordsAffected > 0
+                else if (result.emptyResult) {
+                    tab.columns = null;
+                    tab.data = null;
+                    tab.commandMsg = "Command executed successfully";
+                    tab.rowsInfoText = result.recordsAffected > 0
                         ? `${result.recordsAffected} row(s) affected`
                         : "";
+                    tab.statusText = `Done in ${elapsed} ms`;
                 }
                 else {
-                    setGridFromResult(result);
+                    const model = buildGridModel(result);
+                    tab.columns = model.columns;
+                    tab.data = model.data;
+                    tab.commandMsg = null;
+                    tab.rowsInfoText = `${model.data.length} rows`;
+                    tab.statusText = `Done in ${elapsed} ms`;
                 }
-                setStatus(`Done in ${elapsed} ms`);
             }
             catch (e) {
-                if (myGen !== runGeneration)
+                if (tab.runGen !== myGen)
                     return;
-                showError(e && e.stack ? e.stack : String(e));
-                setStatus("Error");
+                tab.running = false;
+                tab.loadStart = null;
+                tab.errorText = e && e.stack ? e.stack : String(e);
+                tab.statusText = "Error";
             }
             finally {
-                if (myGen === runGeneration) {
-                    hideLoading();
-                    setRunning(false);
+                if (tab.runGen === myGen) {
+                    if (tab.id === activeTabId)
+                        renderActiveTab();
+                    updateTabStrip();
                 }
             }
         }
@@ -409,6 +717,9 @@ ORDER BY
             '<path d="M1.5 2h13v12h-13V2zm1 1v2.5h11V3h-11zm0 3.5V9h4V6.5h-4zm5 0V9h6V6.5h-6zm-5 3.5v3h4v-3h-4zm5 0v3h6v-3h-6z"/></svg>';
         const ICON_FIELD = '<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">' +
             '<circle cx="8" cy="8" r="3.25"/></svg>';
+        // Small "×" used on each tab's close button (static, trusted markup).
+        const ICON_CLOSE = '<svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">' +
+            '<path d="M4.5 3.5L8 7l3.5-3.5 1 1L9 8l3.5 3.5-1 1L8 9l-3.5 3.5-1-1L7 8 3.5 4.5z"/></svg>';
         async function fetchMetadata(path) {
             const clientUrl = Xrm.Utility.getGlobalContext().getClientUrl();
             const resp = await fetch(clientUrl + "/api/data/v9.2/" + path, {
@@ -441,6 +752,10 @@ ORDER BY
             try {
                 const data = await fetchMetadata("EntityDefinitions?$select=LogicalName,SchemaName");
                 const entities = (data.value || []).filter(e => e.SchemaName).sort(bySchemaName);
+                entityList = entities; // keep for autocomplete
+                entityByName = {};
+                for (const e of entities)
+                    entityByName[(e.SchemaName || "").toLowerCase()] = e;
                 renderTables(entities);
             }
             catch (err) {
@@ -454,6 +769,8 @@ ORDER BY
         async function refreshMetadata() {
             for (const k in attributeCache)
                 delete attributeCache[k];
+            entityList = [];
+            entityByName = {};
             await initMetadata();
         }
         // ── Object explorer search / filter ─────────────────────────────────
@@ -581,16 +898,22 @@ ORDER BY
             node.appendChild(children);
             return node;
         }
+        // DOM-free fetch + cache of one entity's attributes. Shared by the tree
+        // (loadFields) and the autocomplete column completer.
+        async function getAttributes(logicalName) {
+            let attrs = attributeCache[logicalName];
+            if (!attrs) {
+                const data = await fetchMetadata("EntityDefinitions(LogicalName='" + logicalName +
+                    "')/Attributes?$select=LogicalName,SchemaName,AttributeType");
+                attrs = (data.value || []).filter(a => a.SchemaName).sort(bySchemaName);
+                attributeCache[logicalName] = attrs; // cache once loaded
+            }
+            return attrs;
+        }
         async function loadFields(ent, children) {
             children.innerHTML =
                 '<div class="tree-loading tree-field-row"><span class="tree-spinner"></span><span>Loading…</span></div>';
-            let attrs = attributeCache[ent.LogicalName];
-            if (!attrs) {
-                const data = await fetchMetadata("EntityDefinitions(LogicalName='" + ent.LogicalName +
-                    "')/Attributes?$select=LogicalName,SchemaName,AttributeType");
-                attrs = (data.value || []).filter(a => a.SchemaName).sort(bySchemaName);
-                attributeCache[ent.LogicalName] = attrs; // cache once loaded
-            }
+            const attrs = await getAttributes(ent.LogicalName);
             children.innerHTML = "";
             if (attrs.length === 0) {
                 children.innerHTML = '<div class="tree-empty tree-field-row">No columns</div>';
@@ -621,6 +944,166 @@ ORDER BY
         function insertIntoEditor(text) {
             editor.session.insert(editor.getCursorPosition(), text);
             editor.focus();
+        }
+        // ── Autocomplete (Ace ext-language_tools) ───────────────────────────
+        // Curated T-SQL keyword/function lists — mode-sql's built-in ANSI set
+        // misses dialect items (TOP, ISNULL, CROSS APPLY, …), so we own this.
+        const SQL_KEYWORDS = ["SELECT", "FROM", "WHERE", "JOIN", "INNER JOIN", "LEFT JOIN", "RIGHT JOIN",
+            "FULL JOIN", "CROSS JOIN", "ON", "GROUP BY", "ORDER BY", "HAVING", "TOP", "DISTINCT", "AS", "AND", "OR",
+            "NOT", "NULL", "IS NULL", "IS NOT NULL", "IN", "LIKE", "BETWEEN", "EXISTS", "UNION", "UNION ALL", "INSERT",
+            "INTO", "VALUES", "UPDATE", "SET", "DELETE", "CASE", "WHEN", "THEN", "ELSE", "END", "ASC", "DESC", "OFFSET",
+            "FETCH", "WITH", "CROSS APPLY", "OUTER APPLY"];
+        const SQL_FUNCTIONS = ["COUNT", "SUM", "AVG", "MIN", "MAX", "ISNULL", "COALESCE", "CAST", "CONVERT", "GETDATE",
+            "DATEADD", "DATEDIFF", "DATEPART", "YEAR", "MONTH", "DAY", "LEN", "SUBSTRING", "CHARINDEX", "REPLACE", "UPPER",
+            "LOWER", "LTRIM", "RTRIM", "CONCAT", "STRING_AGG", "ROW_NUMBER", "RANK"];
+        // The identifier immediately before a trailing dot at the cursor, if any
+        // (handles both "a." and a partial "a.nam"). null when not in a dot context.
+        function dotContext(session, pos) {
+            const line = session.getLine(pos.row).slice(0, pos.column);
+            const m = /([A-Za-z_][A-Za-z0-9_]*)\.\s*[A-Za-z0-9_]*$/.exec(line);
+            return m ? m[1].toLowerCase() : null;
+        }
+        // Parse FROM/JOIN clauses into a token -> LogicalName map. Self-maps the
+        // table name too, so "table.col" works without an explicit alias.
+        function buildAliasMap(text) {
+            const map = {};
+            const KW = /^(on|where|inner|left|right|full|cross|outer|join|group|order|having|union|as)$/i;
+            const re = /\b(?:from|join)\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s+(?:as\s+)?([A-Za-z_][A-Za-z0-9_]*))?/gi;
+            let m;
+            while ((m = re.exec(text)) !== null) {
+                const ent = entityByName[m[1].toLowerCase()];
+                if (!ent)
+                    continue;
+                map[m[1].toLowerCase()] = ent.LogicalName;
+                if (m[2] && !KW.test(m[2]))
+                    map[m[2].toLowerCase()] = ent.LogicalName;
+            }
+            return map;
+        }
+        function colCompletion(a, score) {
+            const v = (a.SchemaName || "").toLowerCase();
+            return { caption: v, value: v, meta: a.AttributeType || "column", score };
+        }
+        function uniq(arr) {
+            const seen = {}, out = [];
+            for (const x of arr)
+                if (!seen[x]) {
+                    seen[x] = 1;
+                    out.push(x);
+                }
+            return out;
+        }
+        // The document text from the start up to the cursor (across lines).
+        function textBeforeCursor(session, pos) {
+            const lines = session.getLines(0, pos.row);
+            if (lines.length)
+                lines[lines.length - 1] = lines[lines.length - 1].slice(0, pos.column);
+            return lines.join("\n");
+        }
+        // Which clause is the cursor in, based on the last clause keyword before it?
+        //   "table"  → a table name is expected (after FROM / JOIN / INTO / UPDATE)
+        //   "column" → a column is expected (SELECT list, WHERE, ON, GROUP/ORDER BY, HAVING, SET)
+        //   "other"  → no strong expectation (e.g. start of statement)
+        function clauseContext(before) {
+            const re = /\b(select|from|join|where|group\s+by|order\s+by|having|on|set|into|update|values)\b/gi;
+            let last = null, m;
+            while ((m = re.exec(before)) !== null)
+                last = m[1].toLowerCase().replace(/\s+/g, " ");
+            if (!last)
+                return "other";
+            if (last === "from" || last === "join" || last === "into" || last === "update")
+                return "table";
+            if (last === "select" || last === "where" || last === "on" || last === "set" ||
+                last === "having" || last === "group by" || last === "order by")
+                return "column";
+            return "other";
+        }
+        // Keywords (score ~1000) sit ABOVE columns/tables in a neutral context, but
+        // columns/tables get boosted past them when the clause expects one (below).
+        const keywordCompleter = {
+            getCompletions(_editor, session, pos, _prefix, callback) {
+                if (dotContext(session, pos)) {
+                    callback(null, []);
+                    return;
+                } // after a dot only columns apply
+                const kw = SQL_KEYWORDS.map(k => ({ caption: k, value: k, meta: "keyword", score: 1000 }));
+                const fn = SQL_FUNCTIONS.map(f => ({ caption: f, value: f, meta: "function", score: 900 }));
+                callback(null, kw.concat(fn));
+            }
+        };
+        const tableCompleter = {
+            getCompletions(_editor, session, pos, _prefix, callback) {
+                if (dotContext(session, pos)) {
+                    callback(null, []);
+                    return;
+                } // dot = column territory
+                const ctx = clauseContext(textBeforeCursor(session, pos));
+                const score = ctx === "table" ? 1300 : ctx === "column" ? 400 : 500;
+                const results = entityList.map(e => {
+                    const v = (e.SchemaName || "").toLowerCase();
+                    return { caption: v, value: v, meta: "table", score };
+                });
+                callback(null, results);
+            }
+        };
+        const columnCompleter = {
+            getCompletions(_editor, session, pos, _prefix, callback) {
+                const text = session.getValue();
+                const aliasMap = buildAliasMap(text);
+                const dot = dotContext(session, pos);
+                if (dot) {
+                    const ent = entityByName[dot];
+                    const logical = aliasMap[dot] || (ent && ent.LogicalName);
+                    if (!logical) {
+                        callback(null, []);
+                        return;
+                    }
+                    getAttributes(logical)
+                        .then(attrs => callback(null, attrs.map(a => colCompletion(a, 1300))))
+                        .catch(() => callback(null, []));
+                    return;
+                }
+                // Bare prefix: union of columns of every table referenced in FROM/JOIN.
+                const logicals = uniq(Object.keys(aliasMap).map(k => aliasMap[k]));
+                if (logicals.length === 0) {
+                    callback(null, []);
+                    return;
+                }
+                const ctx = clauseContext(textBeforeCursor(session, pos));
+                const score = ctx === "column" ? 1200 : ctx === "table" ? 600 : 800;
+                Promise.all(logicals.map(l => getAttributes(l)))
+                    .then(lists => {
+                    const out = [];
+                    const seen = {};
+                    lists.forEach(attrs => attrs.forEach(a => {
+                        const v = (a.SchemaName || "").toLowerCase();
+                        if (!seen[v]) {
+                            seen[v] = 1;
+                            out.push(colCompletion(a, score));
+                        }
+                    }));
+                    callback(null, out);
+                })
+                    .catch(() => callback(null, []));
+            }
+        };
+        function setupAutocomplete() {
+            ace.require("ace/ext/language_tools"); // installs Autocomplete + startAutocomplete cmd
+            editor.completers = [keywordCompleter, tableCompleter, columnCompleter];
+            editor.setOptions({
+                enableBasicAutocompletion: true, // Ctrl+Space — always available
+                enableLiveAutocompletion: autoSuggestOn, // as-you-type — default on
+                enableSnippets: false
+            });
+            // Dot trigger: an empty prefix won't auto-start the popup, so kick it
+            // off ourselves right after a "." (gated by the auto-suggest toggle).
+            editor.commands.on("afterExec", (e) => {
+                if (!autoSuggestOn)
+                    return;
+                if (e.command && e.command.name === "insertstring" && e.args === ".") {
+                    e.editor.execCommand("startAutocomplete");
+                }
+            });
         }
     })(SqlEditor = Sql4CdsApp.SqlEditor || (Sql4CdsApp.SqlEditor = {}));
 })(Sql4CdsApp || (Sql4CdsApp = {}));

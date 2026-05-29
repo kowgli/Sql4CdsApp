@@ -33,7 +33,7 @@ html, body {
     flex-direction: row;
 }
 
-/* Right pane: command bar on top, editor + results below */
+/* Right pane: tab strip + command bar on top, editor + results below */
 #rightPane {
     flex: 1 1 0;
     min-width: 0;
@@ -42,6 +42,120 @@ html, body {
     flex-direction: column;
     overflow: hidden;
 }
+
+/* ── Browser-style tab strip ── */
+#tabStrip {
+    flex: none;
+    display: flex;
+    align-items: stretch;
+    height: 36px;
+    background: var(--f-bg);
+    border-bottom: 1px solid var(--f-border);
+    overflow: hidden;
+}
+
+#tabList {
+    display: flex;
+    align-items: stretch;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+}
+
+    #tabList::-webkit-scrollbar { height: 4px; }
+    #tabList::-webkit-scrollbar-thumb { background: var(--f-border); border-radius: 2px; }
+
+.tab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 0 6px 0 12px;
+    min-width: 96px;
+    max-width: 220px;
+    border-right: 1px solid var(--f-border);
+    background: transparent;
+    color: var(--f-muted);
+    font-size: 13px;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.12s;
+}
+
+    .tab:hover { background: var(--f-hover); }
+
+    .tab.active {
+        background: var(--f-surface);
+        color: var(--f-text);
+    }
+
+    /* blue top accent on the active tab */
+    .tab.active::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--f-primary);
+    }
+
+.tab-title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tab-close {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    border-radius: 3px;
+    background: transparent;
+    color: var(--f-muted);
+    cursor: pointer;
+    opacity: 0.6;
+    transition: background 0.12s, opacity 0.12s, color 0.12s;
+}
+
+    .tab:hover .tab-close { opacity: 1; }
+    .tab-close:hover { background: var(--f-pressed); color: var(--f-text); }
+
+.tab-spinner {
+    flex: none;
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--f-border);
+    border-top-color: var(--f-primary);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+.tab-new {
+    flex: none;
+    width: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: var(--f-muted);
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+}
+
+    .tab-new:hover { background: var(--f-hover); color: var(--f-text); }
+    .tab-new:active { background: var(--f-pressed); }
 
 /* ── Command bar (Fluent) ── */
 #toolbar {
@@ -456,15 +570,82 @@ html, body {
 /* ── Object explorer panel (narrow, full-height, left side) ── */
 #metadataPanel {
     flex: 0 0 220px;
-    min-width: 140px;
+    min-width: 0;            /* allow collapse animation to reach 0 (drag clamps min) */
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
+/* Smooth width animation only while collapsing / expanding (never during drag) */
+#metadataPanel.meta-animating {
+    transition: flex-basis 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Fully hidden once the collapse animation finishes */
+#metadataPanel.meta-collapsed {
+    display: none;
+}
+
 .meta-header {
     justify-content: space-between;
 }
+
+.meta-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex: none;
+}
+
+/* ── Collapsed rail (far left strip shown when explorer is minimized) ── */
+#metaRail {
+    flex: none;
+    width: 34px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding-top: 6px;
+    background: var(--f-header-bg);
+    border-right: 1px solid var(--f-border);
+    overflow: hidden;
+}
+
+    #metaRail.show { display: flex; }
+
+.meta-rail-expand {
+    appearance: none;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    background: transparent;
+    color: var(--f-muted);
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+    flex: none;
+}
+
+    .meta-rail-expand:hover { background: var(--f-hover); color: var(--f-text); }
+    .meta-rail-expand:active { background: var(--f-pressed); }
+
+.meta-rail-label {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: var(--f-muted);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+}
+
+    .meta-rail-label:hover { color: var(--f-text); }
 
 /* ── Object explorer search box ── */
 .meta-search {
