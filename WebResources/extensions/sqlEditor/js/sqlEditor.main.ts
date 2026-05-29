@@ -352,8 +352,8 @@ ORDER BY
     // ── Object explorer / metadata divider (horizontal width drag) ──────
     function setupMetaDivider() {
         const divider = document.getElementById("metaDivider")!;
-        const panel = document.getElementById("metadataPanel")!;
-        const container = document.getElementById("app")!; // holds [panel | divider | right pane]
+        const panel = document.getElementById("metaSide")!;   // resize the whole left container
+        const container = document.getElementById("app")!; // holds [side | divider | right pane]
 
         let isDragging = false;
         let startX = 0;
@@ -411,6 +411,7 @@ ORDER BY
         // Reclamp stored width when the host frame is resized
         window.addEventListener("resize", () => {
             if (widthPx === null) return;
+            if (panel.classList.contains("collapsed")) return;  // don't fight the rail width
             const wsW = container.getBoundingClientRect().width;
             const maxW = wsW - 240;
             if (widthPx > maxW) {
@@ -421,18 +422,22 @@ ORDER BY
     }
 
     // ── Object explorer collapse / minimize ─────────────────────────────
-    // Slides the explorer panel's flex-basis to 0 and swaps in a thin rail on
-    // the far left. The transition is class-gated so it never fires during
-    // divider drags; the editor is resized each animation frame for smoothness.
+    // The left container (#metaSide) holds the full panel and the collapsed
+    // rail as two absolutely-positioned layers. Collapsing animates the
+    // container's flex-basis down to the rail's width while the panel layer
+    // crossfades into the rail layer — so it shrinks straight into the rail
+    // with no width jump. The flex-basis transition is class-gated so it never
+    // fires during divider drags; the editor is resized each frame for smoothness.
     function setupMetaCollapse() {
+        const side = document.getElementById("metaSide")!;
         const panel = document.getElementById("metadataPanel")!;
-        const rail = document.getElementById("metaRail")!;
         const divider = document.getElementById("metaDivider")!;
         const collapseBtn = document.getElementById("collapseMetaBtn")!;
         const expandBtn = document.getElementById("expandMetaBtn")!;
-        const railLabel = rail.querySelector(".meta-rail-label") as HTMLElement | null;
+        const railLabel = document.querySelector("#metaRail .meta-rail-label") as HTMLElement | null;
 
-        const DURATION = 220;
+        const DURATION = 240;
+        const RAIL_W = 34;        // must match #metaRail width in CSS
         let collapsed = false;
         let expandedWidth = 220;
 
@@ -448,20 +453,20 @@ ORDER BY
         function collapse() {
             if (collapsed) return;
             collapsed = true;
-            expandedWidth = Math.max(160, Math.round(panel.getBoundingClientRect().width));
+            expandedWidth = Math.max(160, Math.round(side.getBoundingClientRect().width));
 
-            // Pin the current width, force reflow, then animate to 0.
-            panel.style.flex = `0 0 ${expandedWidth}px`;
-            void panel.offsetWidth;
-            panel.classList.add("meta-animating");
-            panel.style.flex = "0 0 0px";
+            // Freeze the panel layer's width so it gets clipped (not squished)
+            // as the container narrows, then animate the container to rail width.
+            panel.style.width = expandedWidth + "px";
+            side.style.flexBasis = expandedWidth + "px";
+            void side.offsetWidth;                       // commit the start width
+            side.classList.add("meta-animating", "collapsed");
+            side.style.flexBasis = RAIL_W + "px";
             divider.style.display = "none";
             animateEditorDuring(DURATION);
 
             window.setTimeout(() => {
-                panel.classList.remove("meta-animating");
-                panel.classList.add("meta-collapsed");
-                rail.classList.add("show");
+                side.classList.remove("meta-animating");
                 editor.resize();
                 table.redraw(true);
             }, DURATION + 20);
@@ -470,19 +475,18 @@ ORDER BY
         function expand() {
             if (!collapsed) return;
             collapsed = false;
-            rail.classList.remove("show");
-            panel.classList.remove("meta-collapsed");
 
-            // Start from 0, force reflow, then animate back to the saved width.
-            panel.style.flex = "0 0 0px";
-            void panel.offsetWidth;
-            panel.classList.add("meta-animating");
-            panel.style.flex = `0 0 ${expandedWidth}px`;
+            side.style.flexBasis = RAIL_W + "px";
+            void side.offsetWidth;                       // commit the start width
+            side.classList.add("meta-animating");
+            side.classList.remove("collapsed");
+            side.style.flexBasis = expandedWidth + "px";
             divider.style.display = "";
             animateEditorDuring(DURATION);
 
             window.setTimeout(() => {
-                panel.classList.remove("meta-animating");
+                side.classList.remove("meta-animating");
+                panel.style.width = "";                  // back to responsive (tracks container)
                 editor.resize();
                 table.redraw(true);
             }, DURATION + 20);
