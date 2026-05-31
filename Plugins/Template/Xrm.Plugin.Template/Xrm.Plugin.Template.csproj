@@ -102,26 +102,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Modules\DateProvider\DateProvider.csproj">
-      <Project>{1b6f3c61-dbfb-44f4-b28c-deafacc4f0ef}</Project>
-      <Name>DateProvider</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Modules\JsonHelper\JsonHelper.csproj">
-      <Project>{bcfaad7b-8d26-49a5-9d25-46b000efb838}</Project>
-      <Name>JsonHelper</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Modules\PhysicalFileSystem\PhysicalFileSystem.csproj">
-      <Project>{2c139f35-5c0a-44c7-9dad-7ff2087ffdaa}</Project>
-      <Name>PhysicalFileSystem</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Modules\PhysicalHttpRequestExecutor\PhysicalHttpRequestExecutor.csproj">
-      <Project>{d719bbe8-01dd-4f6f-81a7-f294accff844}</Project>
-      <Name>PhysicalHttpRequestExecutor</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Modules\PluginSettingsConfigurationReader\PluginSettingsConfigurationReader.csproj">
-      <Project>{c92e5b98-c88e-4249-b0d0-19be7b22279c}</Project>
-      <Name>PluginSettingsConfigurationReader</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\Xrm.Application\Xrm.Application.csproj">
       <Project>{87ea246e-8756-4bad-bae4-bdafa92712c3}</Project>
       <Name>Xrm.Application</Name>
@@ -147,6 +127,6 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>cd $(TargetDir)
-$(SolutionDir)Tools\Scripts\ILRepack\ILRepack.exe /keyfile:../../Xrm.Plugin.snk /copyattrs /targetplatform:v4 /out:$(SolutionDir)Plugins\Release\$(TargetName).Merged.dll $(TargetFileName) Autofac.dll DateProvider.dll JsonHelper.dll PhysicalFileSystem.dll PhysicalHttpRequestExecutor.dll PluginSettingsConfigurationReader.dll System.ValueTuple.dll XmlHelper.dll Xrm.Application.dll Xrm.Domain.dll Xrm.Infrastructure.dll Xrm.Plugin.Base.dll</PostBuildEvent>
+$(SolutionDir)Tools\Scripts\ILRepack\ILRepack.exe /keyfile:../../Xrm.Plugin.snk /copyattrs /targetplatform:v4 /out:$(SolutionDir)Plugins\Release\$(TargetName).Merged.dll $(TargetFileName) Autofac.dll System.ValueTuple.dll Xrm.Application.dll Xrm.Domain.dll Xrm.Infrastructure.dll Xrm.Plugin.Base.dll</PostBuildEvent>
   </PropertyGroup>
 </Project>

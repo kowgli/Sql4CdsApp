@@ -1,16 +1,13 @@
 ﻿using Autofac;
 using Autofac.Core;
-using DateProvider;
 using Microsoft.Xrm.Sdk;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xrm.Application;
-using Xrm.Application.Interfaces;
 using Xrm.Domain.Attributes;
 using Xrm.Domain.Flow;
 using Xrm.Domain.Interfaces;
-using Xrm.Infrastructure.Fakes;
 
 namespace Xrm.Infrastructure
 {
@@ -20,17 +17,8 @@ namespace Xrm.Infrastructure
 
         private readonly IContainer container = null;
 
-        private readonly DisabledCommands disabledCommands = null;
-
-        public Bus(IDateProvider dateProvider = null, IConfigurationReader configurationReader = null, IHttpRequestExecutor httpRequestExector = null,
-                   IFileSystem fileSystem = null, string disabledCommandConfigJson = null)
+        public Bus()
         {
-            dateProvider = dateProvider ?? new SystemDateProvider();
-
-            disabledCommands = new DisabledCommands(disabledCommandConfigJson);
-
-            configurationReader = configurationReader ?? new BlankConfigurationReader();
-
             var builder = new ContainerBuilder();
 
             Assembly application = typeof(Locator).Assembly;
@@ -40,25 +28,11 @@ namespace Xrm.Infrastructure
             builder.RegisterAssemblyTypes(application).AsClosedTypesOf(typeof(IHandleEvent<>));
             builder.RegisterAssemblyTypes(application).AsClosedTypesOf(typeof(CrmQuery<>));
 
-            /// Add custom dependencies below
-            builder.RegisterInstance(dateProvider);
-            builder.RegisterInstance<IJsonHelper>(new JsonHelper.JsonHelper());
-            builder.RegisterInstance<IXmlHelper>(new XmlHelper.XmlHelper());
-            builder.RegisterInstance(configurationReader);
-            builder.RegisterInstance(httpRequestExector ?? new PhysicalHttpRequestExecutor.HttpRequestExecutor());
-            builder.RegisterInstance(fileSystem ?? new PhysicalFileSystem.FileSystem());
-            /// --- End of custom added dependencties
-
             container = builder.Build();
         }
 
         public void Handle(ICommand command, FlowArguments flowArguments)
         {
-            if (disabledCommands.IsDisabled(command))
-            {
-                return;
-            }
-
             using (ILifetimeScope scope = container.BeginLifetimeScope())
             {
                 var handlerType = typeof(IHandleCommand<>).MakeGenericType(command.GetType());

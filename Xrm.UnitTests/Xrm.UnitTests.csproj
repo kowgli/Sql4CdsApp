@@ -219,10 +219,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Modules\PhysicalHttpRequestExecutor\PhysicalHttpRequestExecutor.csproj">
-      <Project>{d719bbe8-01dd-4f6f-81a7-f294accff844}</Project>
-      <Name>PhysicalHttpRequestExecutor</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Xrm.Application\Xrm.Application.csproj">
       <Project>{87ea246e-8756-4bad-bae4-bdafa92712c3}</Project>
       <Name>Xrm.Application</Name>

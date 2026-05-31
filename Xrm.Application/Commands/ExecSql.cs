@@ -14,7 +14,7 @@ namespace Xrm.Application.Commands
         public string Request { get; set; }
 
         [Output]
-        public string Response { get; set; }
+        public string Response { get; internal set; }
 
         public class RequestModel
         {

@@ -1,5 +1,4 @@
-﻿using DateProvider;
-using Microsoft.Xrm.Sdk;
+﻿using Microsoft.Xrm.Sdk;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -68,11 +67,11 @@ namespace Xrm.Plugin.Base
             this.unsecureConfig = unsecureConfig;
             this.secureConfig = secureConfig;
 
-            bus = new Bus(new SystemDateProvider(), configurationReader: new PluginSettingsConfigurationReader.ConfigurationReader(new JsonHelper.JsonHelper(), this.secureConfig), disabledCommandConfigJson: unsecureConfig);
+            bus = new Bus();
         }
 
         #region Xrm Project Template CQS
-        private Bus bus = new Bus(new SystemDateProvider());
+        private Bus bus = new Bus();
         #endregion
 
 

@@ -3,9 +3,8 @@
   "crmXrmSolutionName": "Sql4CdsApp",
   "context": {
     "entities": [
-      "systemuser",
-      "businessunit",
-      "team"      
+      "annotation",
+      "systemuser"
     ],
     "contextNamespace": "Xrm.Domain.Crm",
     "contextClassName": "XrmContext",

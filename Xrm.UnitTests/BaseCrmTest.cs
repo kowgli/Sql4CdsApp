@@ -15,7 +15,6 @@ namespace Xrm.UnitTests
         protected FakeDateProvider FakeDateProvider { get; set; } = new FakeDateProvider(DateTime.UtcNow);
         protected FakeConfigurationReader FakeConfigurationReader = new FakeConfigurationReader();
         protected FakeHttpRequestExecutor FakeHttpRequestExecutor = new FakeHttpRequestExecutor();
-        protected PhysicalHttpRequestExecutor.HttpRequestExecutor RealHttpRequestExecutor = new PhysicalHttpRequestExecutor.HttpRequestExecutor();
 
         protected XrmFakedContext Context { get; set; } = new XrmFakedContext();
 
@@ -39,11 +38,11 @@ namespace Xrm.UnitTests
 
         protected ITracingService FakeTracing = new FakeTracingService();
 
-        protected ICommandBus CmdBus => new Bus(FakeDateProvider, FakeConfigurationReader, RealHttpRequestExecutor);
+        protected ICommandBus CmdBus => new Bus();
 
-        protected ICommandBus CmdBusWithNoEventPropagation => new Bus(FakeDateProvider) { DoNotPropagateEvents = true };
+        protected ICommandBus CmdBusWithNoEventPropagation => new Bus() { DoNotPropagateEvents = true };
 
-        protected IEventBus EventBus => new Bus(FakeDateProvider, FakeConfigurationReader);
+        protected IEventBus EventBus => new Bus();
 
         protected FlowArguments FlowArgs => new FlowArguments(OrgServiceWrapper, FakeTracing, EventBus, CmdBus);
 
