@@ -61,7 +61,7 @@ namespace Xrm.Application.Commands
                         con.BypassCustomPlugins = request.BypassCustomPlugins;
                         con.UseLocalTimeZone = request.UseLocalTimeZone;
                         con.BlockDeleteWithoutWhere = request.BlockDeleteWithoutWhere;
-                        con.BlockUpdateWithoutWhere = request.BlockUpdateWithoutWhere;
+                        con.BlockUpdateWithoutWhere = request.BlockUpdateWithoutWhere;                        
 
                         cmd.StatementCompleted += (s, e) => response.RecordsAffected += e.RecordsAffected;
 

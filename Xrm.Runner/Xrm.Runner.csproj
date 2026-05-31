@@ -229,10 +229,6 @@
       <Project>{1b6f3c61-dbfb-44f4-b28c-deafacc4f0ef}</Project>
       <Name>DateProvider</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Modules\DirectConfigurationReader\DirectConfigurationReader.csproj">
-      <Project>{07fc891b-4663-4c19-b69c-b6980ef8a0f4}</Project>
-      <Name>DirectConfigurationReader</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Modules\JsonHelper\JsonHelper.csproj">
       <Project>{bcfaad7b-8d26-49a5-9d25-46b000efb838}</Project>
       <Name>JsonHelper</Name>

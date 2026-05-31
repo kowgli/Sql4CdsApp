@@ -20,7 +20,7 @@ namespace Xrm.Runner.Jobs
             IOrganizationService orgService = GetOrgService();
 
             orgServiceWrapper = new OrganizationServiceWrapper(orgService, orgService, new TransactionalService(orgService), new TransactionalService(orgService));
-            bus = new Bus(new SystemDateProvider(), new DirectConfigurationReader.ConfigurationReader(orgService));
+            bus = new Bus(new SystemDateProvider());
         }
 
         protected void Handle(ICommand command)

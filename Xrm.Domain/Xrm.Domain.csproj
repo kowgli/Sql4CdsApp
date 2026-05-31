@@ -106,7 +106,6 @@
     <Compile Include="Crm\OrganizationServiceWrapper.cs" />
     <Compile Include="Crm\XrmContext.cs" />
     <Compile Include="Crm\XrmExtensions.cs" />
-    <Compile Include="DTO\BackgroundJobInfo.cs" />
     <Compile Include="DTO\ConfigurationSetting.cs" />
     <Compile Include="DTO\HttpResponseBodyAndCode.cs" />
     <Compile Include="DTO\TimeZoneNames.cs" />

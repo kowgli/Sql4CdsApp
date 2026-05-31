@@ -52,6 +52,11 @@ ORDER BY
                 bindKey: { win: "Ctrl-T", mac: "Command-T" },
                 exec: () => newTab()
             });
+            editor.commands.addCommand({
+                name: "saveQuery",
+                bindKey: { win: "Ctrl-S", mac: "Command-S" },
+                exec: () => saveQuery()
+            });
             // ── Autocomplete (keywords / tables / columns) ─────────────────
             setupAutocomplete();
             // ── Tabulator setup ────────────────────────────────────────────
@@ -106,6 +111,26 @@ ORDER BY
                 }
                 catch {
                     setStatus("Format failed");
+                }
+            });
+            document.getElementById("saveBtn").addEventListener("click", () => saveQuery());
+            document.getElementById("openBtn").addEventListener("click", () => openQuery());
+            const settingsBtn = document.getElementById("settingsBtn");
+            const settingsPopup = document.getElementById("settingsPopup");
+            settingsBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const open = settingsPopup.classList.toggle("open");
+                settingsBtn.setAttribute("aria-expanded", String(open));
+            });
+            settingsPopup.addEventListener("click", (e) => e.stopPropagation());
+            document.addEventListener("click", () => {
+                settingsPopup.classList.remove("open");
+                settingsBtn.setAttribute("aria-expanded", "false");
+            });
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape" && settingsPopup.classList.contains("open")) {
+                    settingsPopup.classList.remove("open");
+                    settingsBtn.setAttribute("aria-expanded", "false");
                 }
             });
             document.getElementById("cancelBtn").addEventListener("click", () => {
@@ -553,6 +578,7 @@ ORDER BY
             document.getElementById("runBtn").disabled = running;
             document.getElementById("clearBtn").disabled = running;
             document.getElementById("formatBtn").disabled = running;
+            document.getElementById("saveBtn").disabled = running;
         }
         // Shows the overlay for the active tab and (re)starts the elapsed timer.
         // The timer reads the active tab's loadStart so switching tabs shows the
@@ -949,6 +975,61 @@ ORDER BY
         function insertIntoEditor(text) {
             editor.session.insert(editor.getCursorPosition(), text);
             editor.focus();
+        }
+        // ── Save / Open query files ────────────────────────────────────────
+        async function saveQuery() {
+            const tab = getActiveTab();
+            if (!tab)
+                return;
+            const sql = editor.getValue();
+            if (typeof window.showSaveFilePicker === "function") {
+                try {
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: tab.title + ".sql",
+                        types: [{ description: "SQL files", accept: { "text/plain": [".sql"] } }]
+                    });
+                    const writable = await handle.createWritable();
+                    await writable.write(sql);
+                    await writable.close();
+                    tab.title = handle.name.replace(/\.sql$/i, "");
+                    updateTabStrip();
+                    return;
+                }
+                catch (e) {
+                    if (e.name === "AbortError")
+                        return;
+                    // API blocked (e.g. cross-origin iframe) — fall through to download
+                }
+            }
+            const blob = new Blob([sql], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = tab.title + ".sql";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        function openQuery() {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = ".sql,.txt";
+            input.style.display = "none";
+            document.body.appendChild(input);
+            input.onchange = async () => {
+                var _a;
+                const file = (_a = input.files) === null || _a === void 0 ? void 0 : _a[0];
+                document.body.removeChild(input);
+                if (!file)
+                    return;
+                const text = await file.text();
+                const tabName = file.name.replace(/\.(sql|txt)$/i, "");
+                const tab = createTab(text);
+                tab.title = tabName;
+                switchToTab(tab.id);
+            };
+            input.click();
         }
         // ── Autocomplete (Ace ext-language_tools) ───────────────────────────
         // Curated T-SQL keyword/function lists — mode-sql's built-in ANSI set

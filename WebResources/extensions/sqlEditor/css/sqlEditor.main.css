@@ -213,16 +213,54 @@ html, body {
 
 .spacer { flex: 1; }
 
-.opt-check {
-    display: inline-flex;
+/* ── Settings popup ── */
+#settingsWrap {
+    position: relative;
+    flex: none;
+}
+
+.settings-popup {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 200;
+    min-width: 230px;
+    background: var(--f-surface);
+    border: 1px solid var(--f-border);
+    border-radius: 4px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.06);
+    padding: 4px 0;
+    opacity: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+    transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+    .settings-popup.open {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+
+.settings-row {
+    display: flex;
     align-items: center;
-    gap: 5px;
-    font-size: 12px;
-    color: var(--f-muted);
-    white-space: nowrap;
+    gap: 8px;
+    height: 32px;
+    padding: 0 14px;
+    font-size: 13px;
+    color: var(--f-text);
     cursor: pointer;
     user-select: none;
-    padding: 0 6px;
+    white-space: nowrap;
+}
+
+    .settings-row:hover { background: var(--f-hover); }
+
+.settings-divider {
+    height: 1px;
+    background: var(--f-border);
+    margin: 4px 0;
 }
 
 /* ── Main content area (vertical split) ── */
@@ -353,9 +391,20 @@ html, body {
     text-align: center;
 }
 
-.cmd-btn-cancel {
-    border-color: var(--f-border);
+.cmd-link {
+    appearance: none;
+    border: none;
+    background: transparent;
+    padding: 0;
+    font-size: 14px;
+    font-family: var(--font);
+    color: var(--f-primary);
+    cursor: pointer;
+    text-decoration: none;
 }
+
+    .cmd-link:hover  { text-decoration: underline; }
+    .cmd-link:active { color: var(--f-primary-d); }
 
 /* ── Resize skeleton (shown while dragging the divider) ── */
 #resizeSkeleton {

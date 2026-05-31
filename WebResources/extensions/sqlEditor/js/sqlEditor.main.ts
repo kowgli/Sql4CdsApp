@@ -79,6 +79,11 @@ ORDER BY
             bindKey: { win: "Ctrl-T", mac: "Command-T" },
             exec: () => newTab()
         });
+        editor.commands.addCommand({
+            name: "saveQuery",
+            bindKey: { win: "Ctrl-S", mac: "Command-S" },
+            exec: () => saveQuery()
+        });
 
         // ── Autocomplete (keywords / tables / columns) ─────────────────
         setupAutocomplete();
@@ -138,6 +143,28 @@ ORDER BY
                 setStatus("Formatted");
             } catch {
                 setStatus("Format failed");
+            }
+        });
+
+        document.getElementById("saveBtn")!.addEventListener("click", () => saveQuery());
+        document.getElementById("openBtn")!.addEventListener("click", () => openQuery());
+
+        const settingsBtn = document.getElementById("settingsBtn")!;
+        const settingsPopup = document.getElementById("settingsPopup")!;
+        settingsBtn.addEventListener("click", (e: MouseEvent) => {
+            e.stopPropagation();
+            const open = settingsPopup.classList.toggle("open");
+            settingsBtn.setAttribute("aria-expanded", String(open));
+        });
+        settingsPopup.addEventListener("click", (e: MouseEvent) => e.stopPropagation());
+        document.addEventListener("click", () => {
+            settingsPopup.classList.remove("open");
+            settingsBtn.setAttribute("aria-expanded", "false");
+        });
+        document.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.key === "Escape" && settingsPopup.classList.contains("open")) {
+                settingsPopup.classList.remove("open");
+                settingsBtn.setAttribute("aria-expanded", "false");
             }
         });
 
@@ -596,6 +623,7 @@ ORDER BY
         (document.getElementById("runBtn") as HTMLButtonElement).disabled = running;
         (document.getElementById("clearBtn") as HTMLButtonElement).disabled = running;
         (document.getElementById("formatBtn") as HTMLButtonElement).disabled = running;
+        (document.getElementById("saveBtn") as HTMLButtonElement).disabled = running;
     }
 
     // Shows the overlay for the active tab and (re)starts the elapsed timer.
@@ -1022,6 +1050,60 @@ ORDER BY
     function insertIntoEditor(text: string) {
         editor.session.insert(editor.getCursorPosition(), text);
         editor.focus();
+    }
+
+    // ── Save / Open query files ────────────────────────────────────────
+    async function saveQuery(): Promise<void> {
+        const tab = getActiveTab();
+        if (!tab) return;
+        const sql = editor.getValue();
+
+        if (typeof (window as any).showSaveFilePicker === "function") {
+            try {
+                const handle: any = await (window as any).showSaveFilePicker({
+                    suggestedName: tab.title + ".sql",
+                    types: [{ description: "SQL files", accept: { "text/plain": [".sql"] } }]
+                });
+                const writable = await handle.createWritable();
+                await writable.write(sql);
+                await writable.close();
+                tab.title = (handle.name as string).replace(/\.sql$/i, "");
+                updateTabStrip();
+                return;
+            } catch (e: any) {
+                if (e.name === "AbortError") return;
+                // API blocked (e.g. cross-origin iframe) — fall through to download
+            }
+        }
+
+        const blob = new Blob([sql], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = tab.title + ".sql";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function openQuery(): void {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = ".sql,.txt";
+        input.style.display = "none";
+        document.body.appendChild(input);
+        input.onchange = async () => {
+            const file = input.files?.[0];
+            document.body.removeChild(input);
+            if (!file) return;
+            const text = await file.text();
+            const tabName = file.name.replace(/\.(sql|txt)$/i, "");
+            const tab = createTab(text);
+            tab.title = tabName;
+            switchToTab(tab.id);
+        };
+        input.click();
     }
 
     // ── Autocomplete (Ace ext-language_tools) ───────────────────────────
