@@ -554,13 +554,34 @@ var Sql4CdsApp;
     var SqlEditor;
     (function (SqlEditor) {
         // ── Dataverse custom action: execute SQL ───────────────────────────
+        function buildFormattingInfo() {
+            try {
+                const us = Xrm.Utility.getGlobalContext().userSettings;
+                const dfi = us.dateFormattingInfo;
+                return {
+                    languageId: us.languageId,
+                    shortDatePattern: dfi.ShortDatePattern,
+                    shortTimePattern: dfi.ShortTimePattern,
+                    longDatePattern: dfi.LongDatePattern,
+                    longTimePattern: dfi.LongTimePattern,
+                    dateSeparator: dfi.DateSeparator,
+                    timeSeparator: dfi.TimeSeparator,
+                    amDesignator: dfi.AmDesignator,
+                    pmDesignator: dfi.PmDesignator
+                };
+            }
+            catch {
+                return {};
+            }
+        }
         async function executeQuery(sqlText) {
             const requestModel = {
                 sql: sqlText,
                 bypassCustomPlugins: SqlEditor.settings.bypassCustomPlugins,
                 useLocalTimeZone: SqlEditor.settings.useLocalTimeZone,
                 blockDeleteWithoutWhere: SqlEditor.settings.blockDeleteWithoutWhere,
-                blockUpdateWithoutWhere: SqlEditor.settings.blockUpdateWithoutWhere
+                blockUpdateWithoutWhere: SqlEditor.settings.blockUpdateWithoutWhere,
+                formattingInfo: buildFormattingInfo()
             };
             const request = {
                 Request: JSON.stringify(requestModel),
