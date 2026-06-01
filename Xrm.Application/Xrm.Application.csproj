@@ -115,6 +115,7 @@
     <Compile Include="Commands\CheckIsAdmin.cs" />
     <Compile Include="Commands\ExecSql.cs" />
     <Compile Include="Commands\LoadSettings.cs" />
+    <Compile Include="Commands\SaveSettings.cs" />
     <Compile Include="Helpers\CrmHelper.cs" />
     <Compile Include="Helpers\CrmUlrParser.cs" />
     <Compile Include="Helpers\EntityExtensions.cs" />

@@ -125,7 +125,8 @@
         Win,
         // Add custom events here        
         cd365_ExecSql,
-        cd365_LoadSettings
+        cd365_LoadSettings,
+        cd365_SaveSettings
     }
 
     public enum ImageType

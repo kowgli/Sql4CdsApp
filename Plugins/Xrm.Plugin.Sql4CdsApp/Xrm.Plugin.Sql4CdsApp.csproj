@@ -123,6 +123,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExecLoadSettings.cs" />
+    <Compile Include="ExecSaveSettings.cs" />
     <Compile Include="ExecSqlPostExecute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

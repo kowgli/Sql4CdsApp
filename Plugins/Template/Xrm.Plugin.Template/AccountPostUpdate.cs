@@ -9,14 +9,14 @@ namespace Xrm.Plugin.Template
 
         public AccountPostUpdate(string unsecureConfig, string secureConfig) : base(typeof(AccountPostUpdate), unsecureConfig, secureConfig)
         {
-            RegisterPluginStep<Account>(EventOperation.Update, ExecutionStage.PostOperation, Execute)
-                                       .AddFilteredAttributes(x => x.Name, x => x.EMailAddress1)
-                                       .AddImage(ImageType.PreImage);
+            //RegisterPluginStep<Account>(EventOperation.Update, ExecutionStage.PostOperation, Execute)
+            //                           .AddFilteredAttributes(x => x.Name, x => x.EMailAddress1)
+            //                           .AddImage(ImageType.PreImage);
         }
 
         private void Execute(LocalPluginContext localContext)
         {
-            Account target = localContext.GetTarget().ToEntity<Account>();
+            //Account target = localContext.GetTarget().ToEntity<Account>();
 
             //localContext.Handle(new SampleCommand { Target = target, ExecutionContext = localContext.PluginExecutionContext });
         }
