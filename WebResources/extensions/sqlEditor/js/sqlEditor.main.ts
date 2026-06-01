@@ -58,7 +58,32 @@ ORDER BY
     const attributeCache: { [logicalName: string]: any[] } = {};
     let entityList: any[] = [];                          // all tables, kept for autocomplete
     let entityByName: { [lower: string]: any } = {};     // lowercased SchemaName -> entity
-    let autoSuggestOn = true;                            // live autocomplete + dot trigger (toolbar toggle)
+    // ── Settings (options popup) ────────────────────────────────────────
+    interface QuerySettings {
+        bypassCustomPlugins: boolean;
+        useLocalTimeZone: boolean;
+        blockDeleteWithoutWhere: boolean;
+        blockUpdateWithoutWhere: boolean;
+        autoSuggest: boolean;
+    }
+
+    const SETTING_IDS: { [K in keyof QuerySettings]: string } = {
+        bypassCustomPlugins: "optBypassPlugins",
+        useLocalTimeZone: "optLocalTime",
+        blockDeleteWithoutWhere: "optBlockDelete",
+        blockUpdateWithoutWhere: "optBlockUpdate",
+        autoSuggest: "optAutoSuggest"
+    };
+
+    const settings: QuerySettings = {
+        bypassCustomPlugins: false,
+        useLocalTimeZone: true,
+        blockDeleteWithoutWhere: true,
+        blockUpdateWithoutWhere: true,
+        autoSuggest: true
+    };
+
+    let isSystemAdmin = false;
 
     export function onLoad() {
         // ── Ace setup (single editor; sessions are swapped per tab) ─────
@@ -115,13 +140,10 @@ ORDER BY
         document.getElementById("runBtn")!.addEventListener("click", run);
         document.getElementById("newTabBtn")!.addEventListener("click", newTab);
 
-        const autoChk = document.getElementById("optAutoSuggest") as HTMLInputElement;
-        autoSuggestOn = autoChk.checked;   // default checked
-        autoChk.addEventListener("change", () => {
-            autoSuggestOn = autoChk.checked;
-            (editor as any).setOptions({ enableLiveAutocompletion: autoSuggestOn });
-            // The afterExec dot handler is gated by autoSuggestOn, so it follows the toggle.
-        });
+        applySettingsToUi();
+        applyAdminConstraints();
+        wireSettingsListeners();
+        void loadSettings();
 
         document.getElementById("clearBtn")!.addEventListener("click", () => {
             const tab = getActiveTab();
@@ -626,6 +648,91 @@ ORDER BY
         (document.getElementById("saveBtn") as HTMLButtonElement).disabled = running;
     }
 
+    function applySettingsToUi() {
+        for (const key of Object.keys(SETTING_IDS) as Array<keyof QuerySettings>) {
+            const el = document.getElementById(SETTING_IDS[key]) as HTMLInputElement | null;
+            if (el) el.checked = settings[key];
+        }
+    }
+
+    function wireSettingsListeners() {
+        for (const key of Object.keys(SETTING_IDS) as Array<keyof QuerySettings>) {
+            const el = document.getElementById(SETTING_IDS[key]) as HTMLInputElement | null;
+            if (!el) continue;
+            el.addEventListener("change", () => {
+                settings[key] = el.checked;
+                if (key === "autoSuggest") {
+                    (editor as any).setOptions({ enableLiveAutocompletion: settings.autoSuggest });
+                }
+                void saveSettings();
+            });
+        }
+    }
+
+    function applyAdminConstraints() {
+        const el = document.getElementById(SETTING_IDS.bypassCustomPlugins) as HTMLInputElement | null;
+        if (!el) return;
+        el.disabled = !isSystemAdmin;
+        if (!isSystemAdmin) {
+            settings.bypassCustomPlugins = false;
+            el.checked = false;
+        }
+        const lbl = el.closest("label") as HTMLElement | null;
+        if (lbl) lbl.style.opacity = isSystemAdmin ? "" : "0.45";
+    }
+
+    async function loadSettings(): Promise<void> {
+        try {
+            const request = {
+                getMetadata() {
+                    return {
+                        boundParameter: null,
+                        parameterTypes: {},
+                        operationType: 0,
+                        operationName: "cd365_LoadSettings"
+                    };
+                }
+            };
+            const resp = await Xrm.WebApi.online.execute(request);
+            const result = await resp.json();
+
+            isSystemAdmin = result.IsSystemAdmin === true;
+
+            if (result.Settings) {
+                try {
+                    const loaded = JSON.parse(result.Settings);
+                    for (const key of Object.keys(SETTING_IDS) as Array<keyof QuerySettings>) {
+                        if (key in loaded && typeof loaded[key] === "boolean") {
+                            settings[key] = loaded[key];
+                        }
+                    }
+                } catch { /* malformed JSON — keep defaults */ }
+            }
+        } catch { /* network/plugin error — keep defaults, treat as non-admin */ }
+
+        applySettingsToUi();
+        applyAdminConstraints();
+    }
+
+    async function saveSettings(): Promise<void> {
+        try {
+            const request = {
+                Settings: JSON.stringify(settings),
+                getMetadata() {
+                    return {
+                        boundParameter: null,
+                        parameterTypes: {
+                            Settings: { typeName: "Edm.String", structuralProperty: 1 }
+                        },
+                        operationType: 0,
+                        operationName: "cd365_SaveSettings"
+                    };
+                }
+            };
+            await Xrm.WebApi.online.execute(request);
+        } catch { /* best-effort — don't surface save errors */ }
+    }
+
     // Shows the overlay for the active tab and (re)starts the elapsed timer.
     // The timer reads the active tab's loadStart so switching tabs shows the
     // correct elapsed time for whichever query is currently in view.
@@ -707,10 +814,10 @@ ORDER BY
     async function executeQuery(sqlText: string) {
         const requestModel = {
             sql: sqlText,
-            bypassCustomPlugins: (document.getElementById("optBypassPlugins") as HTMLInputElement).checked,
-            useLocalTimeZone: (document.getElementById("optLocalTime") as HTMLInputElement).checked,
-            blockDeleteWithoutWhere: (document.getElementById("optBlockDelete") as HTMLInputElement).checked,
-            blockUpdateWithoutWhere: (document.getElementById("optBlockUpdate") as HTMLInputElement).checked
+            bypassCustomPlugins: settings.bypassCustomPlugins,
+            useLocalTimeZone: settings.useLocalTimeZone,
+            blockDeleteWithoutWhere: settings.blockDeleteWithoutWhere,
+            blockUpdateWithoutWhere: settings.blockUpdateWithoutWhere
         };
 
         const execSqlRequest = {
@@ -1239,14 +1346,14 @@ ORDER BY
         (editor as any).completers = [keywordCompleter, tableCompleter, columnCompleter];
         (editor as any).setOptions({
             enableBasicAutocompletion: true,        // Ctrl+Space — always available
-            enableLiveAutocompletion: autoSuggestOn, // as-you-type — default on
+            enableLiveAutocompletion: settings.autoSuggest,
             enableSnippets: false
         });
 
         // Dot trigger: an empty prefix won't auto-start the popup, so kick it
         // off ourselves right after a "." (gated by the auto-suggest toggle).
         editor.commands.on("afterExec", (e: any) => {
-            if (!autoSuggestOn) return;
+            if (!settings.autoSuggest) return;
             if (e.command && e.command.name === "insertstring" && e.args === ".") {
                 e.editor.execCommand("startAutocomplete");
             }
