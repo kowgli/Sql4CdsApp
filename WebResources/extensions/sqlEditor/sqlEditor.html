@@ -110,6 +110,11 @@
                     <label class="settings-row"><input type="checkbox" id="optAutoSuggest" checked /> Auto-suggest</label>
                 </div>
             </div>
+            <div class="cmd-sep"></div>
+            <button class="cmd-btn" id="aboutBtn" title="About SQL4CDS App">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 1.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM8 5a.75.75 0 1 1 0 1.5A.75.75 0 0 1 8 5zm-.75 2.5h1.5v4h-1.5v-4z"/></svg>
+                About
+            </button>
         </div>
 
         <!-- Editor + resizable divider + results, stacked vertically -->
@@ -140,6 +145,356 @@
             </div>
         </div>
 
+        </div>
+    </div>
+
+    <!-- About modal -->
+    <div id="aboutOverlay" class="about-overlay" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+        <div class="about-modal">
+            <div class="about-modal-header">
+                <!-- SQL file format icon — sourced from SVGRepo (https://www.svgrepo.com/svg/13344/sql-file-format) -->
+                <svg class="about-app-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" aria-hidden="true">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="#0078d4"/>
+                    <path d="M14 2v6h6" fill="#005a9e"/>
+                    <text x="12" y="17.5" text-anchor="middle" fill="white" font-size="5.5" font-weight="bold" font-family="Segoe UI, sans-serif" letter-spacing="0.3">SQL</text>
+                </svg>
+                <div class="about-app-info">
+                    <div class="about-app-name" id="aboutTitle">SQL4CDS App</div>
+                    <div class="about-app-version">Version 0.1</div>
+                    <div class="about-app-desc">SQL editor for Microsoft Dataverse, powered by the open-source Sql4Cds engine. Run T-SQL queries directly against your Dataverse environment from within a model-driven app.</div>
+                </div>
+                <button class="about-close-btn" id="aboutCloseBtn" aria-label="Close About">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4.5 3.5L8 7l3.5-3.5 1 1L9 8l3.5 3.5-1 1L8 9l-3.5 3.5-1-1L7 8 3.5 4.5z"/></svg>
+                </button>
+            </div>
+            <div class="about-modal-body">
+                <h3 class="about-section-title">Open Source Attributions</h3>
+
+                <div class="about-attribution">
+                    <div class="about-attr-meta">
+                        <span class="about-attr-name">Sql4Cds</span>
+                        <span class="about-attr-version">by MarkMpn</span>
+                        <span class="about-attr-badge">MIT License</span>
+                    </div>
+                    <div class="about-attr-copy">Copyright &copy; Mark Carrington (MarkMpn)</div>
+                    <div class="about-attr-url">https://github.com/MarkMpn/Sql4Cds</div>
+                    <details class="about-attr-details">
+                        <summary>View license text</summary>
+                        <pre class="about-license-text">MIT License
+
+Copyright (c) Mark Carrington (MarkMpn)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</pre>
+                    </details>
+                </div>
+
+                <div class="about-attribution">
+                    <div class="about-attr-meta">
+                        <span class="about-attr-name">Ace Editor</span>
+                        <span class="about-attr-version">v1.32.3</span>
+                        <span class="about-attr-badge about-attr-badge-bsd">BSD 3-Clause License</span>
+                    </div>
+                    <div class="about-attr-copy">Copyright &copy; 2010, Ajax.org B.V.</div>
+                    <div class="about-attr-url">https://github.com/ajaxorg/ace</div>
+                    <details class="about-attr-details">
+                        <summary>View license text</summary>
+                        <pre class="about-license-text">BSD 3-Clause License
+
+Copyright (c) 2010, Ajax.org B.V.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</pre>
+                    </details>
+                </div>
+
+                <div class="about-attribution">
+                    <div class="about-attr-meta">
+                        <span class="about-attr-name">Tabulator</span>
+                        <span class="about-attr-version">v6.4.0</span>
+                        <span class="about-attr-badge">MIT License</span>
+                    </div>
+                    <div class="about-attr-copy">Copyright &copy; 2015 Oli Folkerd</div>
+                    <div class="about-attr-url">https://github.com/olifolkerd/tabulator</div>
+                    <details class="about-attr-details">
+                        <summary>View license text</summary>
+                        <pre class="about-license-text">MIT License
+
+Copyright (c) 2015 Oli Folkerd
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</pre>
+                    </details>
+                </div>
+
+                <div class="about-attribution">
+                    <div class="about-attr-meta">
+                        <span class="about-attr-name">sql-formatter</span>
+                        <span class="about-attr-version">v15</span>
+                        <span class="about-attr-badge">MIT License</span>
+                    </div>
+                    <div class="about-attr-copy">Copyright &copy; 2016-present ZeroTurnaround LLC, contributors</div>
+                    <div class="about-attr-url">https://github.com/sql-formatter-org/sql-formatter</div>
+                    <details class="about-attr-details">
+                        <summary>View license text</summary>
+                        <pre class="about-license-text">MIT License
+
+Copyright (c) 2016-present ZeroTurnaround LLC, contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</pre>
+                    </details>
+                </div>
+
+                <div class="about-attribution">
+                    <div class="about-attr-meta">
+                        <span class="about-attr-name">SVGRepo</span>
+                        <span class="about-attr-badge about-attr-badge-neutral">Attribution</span>
+                    </div>
+                    <div class="about-attr-copy">SQL file format icon used in this application</div>
+                    <div class="about-attr-url">https://www.svgrepo.com/svg/13344/sql-file-format</div>
+                    <div class="about-attr-note">Icon sourced from SVGRepo &mdash; <span class="about-attr-url">https://www.svgrepo.com</span></div>
+                </div>
+
+                <div class="about-section-sub">Backend — Dataverse Plugin</div>
+
+                <div class="about-attribution">
+                    <div class="about-attr-meta">
+                        <span class="about-attr-name">Autofac</span>
+                        <span class="about-attr-version">v4.6.2</span>
+                        <span class="about-attr-badge">MIT License</span>
+                    </div>
+                    <div class="about-attr-copy">Copyright &copy; 2014 Autofac Contributors</div>
+                    <div class="about-attr-url">https://github.com/autofac/Autofac</div>
+                    <details class="about-attr-details">
+                        <summary>View license text</summary>
+                        <pre class="about-license-text">MIT License
+
+Copyright (c) 2014 Autofac Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</pre>
+                    </details>
+                </div>
+
+                <div class="about-attribution">
+                    <div class="about-attr-meta">
+                        <span class="about-attr-name">Newtonsoft.Json</span>
+                        <span class="about-attr-version">v13.0</span>
+                        <span class="about-attr-badge">MIT License</span>
+                    </div>
+                    <div class="about-attr-copy">Copyright &copy; 2007 James Newton-King</div>
+                    <div class="about-attr-url">https://www.newtonsoft.com/json</div>
+                    <details class="about-attr-details">
+                        <summary>View license text</summary>
+                        <pre class="about-license-text">MIT License
+
+Copyright (c) 2007 James Newton-King
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</pre>
+                    </details>
+                </div>
+
+                <div class="about-attribution">
+                    <div class="about-attr-meta">
+                        <span class="about-attr-name">XPath2 / XPath2.Extensions</span>
+                        <span class="about-attr-version">v1.1.3</span>
+                        <span class="about-attr-badge">MIT License</span>
+                    </div>
+                    <div class="about-attr-copy">XPath 2.0 implementation for .NET</div>
+                    <div class="about-attr-url">https://github.com/StefH/XPath2.Net</div>
+                    <details class="about-attr-details">
+                        <summary>View license text</summary>
+                        <pre class="about-license-text">MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</pre>
+                    </details>
+                </div>
+
+                <div class="about-attribution">
+                    <div class="about-attr-meta">
+                        <span class="about-attr-name">Microsoft.SqlServer.TransactSql.ScriptDom</span>
+                        <span class="about-attr-version">v17.0</span>
+                        <span class="about-attr-badge">MIT License</span>
+                    </div>
+                    <div class="about-attr-copy">Copyright &copy; Microsoft Corporation</div>
+                    <div class="about-attr-url">https://github.com/microsoft/SqlScriptDOM</div>
+                    <details class="about-attr-details">
+                        <summary>View license text</summary>
+                        <pre class="about-license-text">MIT License
+
+Copyright (c) Microsoft Corporation
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</pre>
+                    </details>
+                </div>
+
+                <div class="about-attribution about-attribution-last">
+                    <div class="about-attr-meta">
+                        <span class="about-attr-name">Microsoft Application Insights</span>
+                        <span class="about-attr-version">v2.23.0</span>
+                        <span class="about-attr-badge">MIT License</span>
+                    </div>
+                    <div class="about-attr-copy">Copyright &copy; Microsoft Corporation</div>
+                    <div class="about-attr-url">https://github.com/microsoft/ApplicationInsights-dotnet</div>
+                    <details class="about-attr-details">
+                        <summary>View license text</summary>
+                        <pre class="about-license-text">MIT License
+
+Copyright (c) Microsoft Corporation
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</pre>
+                    </details>
+                </div>
+
+            </div>
         </div>
     </div>
 

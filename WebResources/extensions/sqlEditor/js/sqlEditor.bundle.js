@@ -144,6 +144,25 @@ ORDER BY
                     settingsBtn.setAttribute("aria-expanded", "false");
                 }
             });
+            // ── About modal ────────────────────────────────────────────────
+            const aboutBtn = document.getElementById("aboutBtn");
+            const aboutOverlay = document.getElementById("aboutOverlay");
+            const aboutCloseBtn = document.getElementById("aboutCloseBtn");
+            aboutBtn.addEventListener("click", () => {
+                aboutOverlay.classList.add("open");
+            });
+            aboutCloseBtn.addEventListener("click", () => {
+                aboutOverlay.classList.remove("open");
+            });
+            aboutOverlay.addEventListener("click", (e) => {
+                if (e.target === aboutOverlay)
+                    aboutOverlay.classList.remove("open");
+            });
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape" && aboutOverlay.classList.contains("open")) {
+                    aboutOverlay.classList.remove("open");
+                }
+            });
             document.getElementById("cancelBtn").addEventListener("click", () => {
                 const tab = getActiveTab();
                 if (!tab)
