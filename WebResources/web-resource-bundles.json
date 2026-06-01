@@ -8,6 +8,14 @@
   {
     "outputFileName": "extensions/sqlEditor/js/sqlEditor.bundle.js",
     "inputFiles": [
+      "extensions/sqlEditor/js/sqlEditor.state.js",
+      "extensions/sqlEditor/js/sqlEditor.ui.js",
+      "extensions/sqlEditor/js/sqlEditor.tabs.js",
+      "extensions/sqlEditor/js/sqlEditor.dividers.js",
+      "extensions/sqlEditor/js/sqlEditor.api.js",
+      "extensions/sqlEditor/js/sqlEditor.metadata.js",
+      "extensions/sqlEditor/js/sqlEditor.autocomplete.js",
+      "extensions/sqlEditor/js/sqlEditor.fileio.js",
       "extensions/sqlEditor/js/sqlEditor.main.js"
     ]
   }
