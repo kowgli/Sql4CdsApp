@@ -6,17 +6,18 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>SQL Editor</title>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabulator-tables@6.4.0/dist/css/tabulator.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabulator-tables@6.4.0/dist/css/tabulator.min.css" integrity="sha384-EQBNn3WbvE7jktBWfpQ9A2wxEX/i4xux1PaJmY5TUpeSfc3ulYZSxxXOZ4HXWLNd" crossorigin="anonymous">
     <link href="css/sqlEditor.bundle.css" rel="stylesheet" />
 
     <script src="../../../ClientGlobalContext.js.aspx" type="text/javascript"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/sql-formatter@15/dist/sql-formatter.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min-noconflict/ace.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min-noconflict/mode-sql.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min-noconflict/theme-sqlserver.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min-noconflict/ext-language_tools.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tabulator-tables@6.4.0/dist/js/tabulator.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sql-formatter@15/dist/sql-formatter.min.js" integrity="sha384-ErdPupuu7qD3Zq5FYRixHX2Nx63IPz0ExjnzfP5XZKEb1PdjJEAakXigDTk9BEqE" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min-noconflict/ace.js" integrity="sha384-Xf5byZtX61N03TLwmNaurj1pa03Xv+ZbDE/d+2vXNmM0uSY+LjSoKCS157CF9Fbw" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min-noconflict/mode-sql.js" integrity="sha384-b9ZncHaftGDM8JYhaRFxuUePyQ3HXlJMd8ynltDM7utS19j5gKBGMal94Y1mAujF" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min-noconflict/theme-sqlserver.js" integrity="sha384-OsnlkN07HhiU7hiyY9mlHWVpcjpCiPXkIeoygwgrcV2PpnHOUuL7N0T7ZDh5XgE1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min-noconflict/ext-language_tools.js" integrity="sha384-/E/geykbs90cbzJSJ0vDqSDyLxJ+7zILc/nVKIrlo7jrRB69kxP8RgDTaQ6EIXFc" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tabulator-tables@6.4.0/dist/js/tabulator.min.js" integrity="sha384-pYxmWRni6PTDEhE3EUFDBSQ4KQcsBHtS3N+syMWwrtxs9QRtJkxkphTVQMXEdVjT" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -131,6 +132,28 @@
                     <span class="panel-title">Results</span>
                     <span id="status" class="panel-status">Ready</span>
                     <span id="rowsInfo" class="panel-result-info"></span>
+                    <div id="exportWrap" style="display:none">
+                        <button class="export-btn" id="exportToggleBtn" title="Export or copy results" aria-haspopup="true" aria-expanded="false">
+                            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M7.25 1v7.44L5.03 6.22 3.97 7.28 8 11.31l4.03-4.03-1.06-1.06-2.22 2.22V1h-1.5zM1 12v2a1 1 0 001 1h12a1 1 0 001-1v-2h-1.5v1.5h-11V12H1z"/></svg>
+                            Export
+                            <svg width="8" height="5" viewBox="0 0 8 5" fill="currentColor" aria-hidden="true"><path d="M0 0l4 5 4-5z"/></svg>
+                        </button>
+                        <div id="exportPopup" class="export-popup">
+                            <button class="export-item" id="exportXlsxBtn">
+                                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 2a1 1 0 011-1h10a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V2zm1 0v3h4V2H3zm5 0v3h4V2H8zM3 6v3h4V6H3zm5 0v3h4V6H8zM3 10v3h4v-3H3zm5 0v3h4v-3H8z"/></svg>
+                                Export to Excel
+                            </button>
+                            <button class="export-item" id="exportCsvBtn">
+                                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M9.5 1H3a1 1 0 00-1 1v12a1 1 0 001 1h10a1 1 0 001-1V5.5L9.5 1zm0 1.5l2.5 2.5H9.5V2.5zM4 7h8v1.5H4V7zm0 3h8v1.5H4V10z"/></svg>
+                                Export to CSV
+                            </button>
+                            <div class="export-divider"></div>
+                            <button class="export-item" id="exportClipboardBtn">
+                                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6.5 1A1.5 1.5 0 005 2.5H3.5A1.5 1.5 0 002 4v9.5A1.5 1.5 0 003.5 15h9a1.5 1.5 0 001.5-1.5V4a1.5 1.5 0 00-1.5-1.5H11A1.5 1.5 0 009.5 1h-3zm0 1.5h3a.5.5 0 010 1H5a.5.5 0 010-1h1.5zM3.5 4H5v.5a.5.5 0 00.5.5h5a.5.5 0 00.5-.5V4h1.5a.5.5 0 01.5.5v9a.5.5 0 01-.5.5h-9a.5.5 0 01-.5-.5V4.5a.5.5 0 01.5-.5z"/></svg>
+                                Copy to clipboard
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div id="resultsBody">
                     <div id="resizeSkeleton"></div>
@@ -311,6 +334,36 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.</pre>
+                    </details>
+                </div>
+
+                <div class="about-attribution">
+                    <div class="about-attr-meta">
+                        <span class="about-attr-name">SheetJS</span>
+                        <span class="about-attr-version">v0.18.5</span>
+                        <span class="about-attr-badge about-attr-badge-apache">Apache 2.0 License</span>
+                    </div>
+                    <div class="about-attr-copy">Copyright &copy; SheetJS LLC and Contributors</div>
+                    <div class="about-attr-url">https://github.com/SheetJS/sheetjs</div>
+                    <details class="about-attr-details">
+                        <summary>View license text</summary>
+                        <pre class="about-license-text">Apache License
+Version 2.0, January 2004
+http://www.apache.org/licenses/
+
+Copyright (c) SheetJS LLC and Contributors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</pre>
                     </details>
                 </div>
 

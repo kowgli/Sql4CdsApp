@@ -5,7 +5,7 @@ var Sql4CdsApp;
     var SqlEditor;
     (function (SqlEditor) {
         let editor;
-        let table, statusEl, errorBox, rowsInfo, commandMessage, loadingOverlay, loadingTimer;
+        let table, statusEl, errorBox, rowsInfo, commandMessage, loadingOverlay, loadingTimer, exportWrap;
         let timerInterval = null;
         let tabs = [];
         let activeTabId = -1;
@@ -94,6 +94,7 @@ ORDER BY
             loadingOverlay = document.getElementById("loadingOverlay");
             loadingTimer = document.getElementById("loadingTimer");
             tabListEl = document.getElementById("tabList");
+            exportWrap = document.getElementById("exportWrap");
             // ── Toolbar / tab events (wired before first render so they always attach) ──
             document.getElementById("runBtn").addEventListener("click", run);
             document.getElementById("newTabBtn").addEventListener("click", newTab);
@@ -126,6 +127,59 @@ ORDER BY
             });
             document.getElementById("saveBtn").addEventListener("click", () => saveQuery());
             document.getElementById("openBtn").addEventListener("click", () => openQuery());
+            // ── Export dropdown ────────────────────────────────────────────
+            const exportToggleBtn = document.getElementById("exportToggleBtn");
+            const exportPopup = document.getElementById("exportPopup");
+            exportToggleBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const open = exportPopup.classList.toggle("open");
+                if (open) {
+                    const rect = exportToggleBtn.getBoundingClientRect();
+                    exportPopup.style.top = (rect.bottom + 4) + "px";
+                    exportPopup.style.right = (window.innerWidth - rect.right) + "px";
+                }
+                exportToggleBtn.setAttribute("aria-expanded", String(open));
+            });
+            exportPopup.addEventListener("click", (e) => e.stopPropagation());
+            document.addEventListener("click", () => {
+                exportPopup.classList.remove("open");
+                exportToggleBtn.setAttribute("aria-expanded", "false");
+            });
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape" && exportPopup.classList.contains("open")) {
+                    exportPopup.classList.remove("open");
+                    exportToggleBtn.setAttribute("aria-expanded", "false");
+                }
+            });
+            document.getElementById("exportXlsxBtn").addEventListener("click", () => {
+                const tab = getActiveTab();
+                if (!tab || !tab.data || tab.data.length === 0)
+                    return;
+                exportPopup.classList.remove("open");
+                exportToggleBtn.setAttribute("aria-expanded", "false");
+                table.download("xlsx", (tab.title || "results") + ".xlsx", { sheetName: "Results" });
+            });
+            document.getElementById("exportCsvBtn").addEventListener("click", () => {
+                const tab = getActiveTab();
+                if (!tab || !tab.data || tab.data.length === 0)
+                    return;
+                exportPopup.classList.remove("open");
+                exportToggleBtn.setAttribute("aria-expanded", "false");
+                table.download("csv", (tab.title || "results") + ".csv");
+            });
+            document.getElementById("exportClipboardBtn").addEventListener("click", () => {
+                const tab = getActiveTab();
+                if (!tab || !tab.data || tab.data.length === 0 || !tab.columns)
+                    return;
+                exportPopup.classList.remove("open");
+                exportToggleBtn.setAttribute("aria-expanded", "false");
+                const text = buildTabDelimited(tab);
+                navigator.clipboard.writeText(text).then(() => {
+                    const prev = statusEl.textContent;
+                    setStatus("Copied to clipboard");
+                    window.setTimeout(() => setStatus(prev || ""), 2000);
+                }).catch(() => setStatus("Copy failed"));
+            });
             const settingsBtn = document.getElementById("settingsBtn");
             const settingsPopup = document.getElementById("settingsPopup");
             settingsBtn.addEventListener("click", (e) => {
@@ -359,6 +413,7 @@ ORDER BY
                 table.setData(tab.data || []);
             }
             rowsInfo.textContent = tab.rowsInfoText || "";
+            exportWrap.style.display = (tab.data && tab.data.length > 0) ? "" : "none";
             setStatus(tab.statusText || "Ready");
             setRunning(tab.running);
             if (tab.running)
@@ -1089,6 +1144,21 @@ ORDER BY
         function insertIntoEditor(text) {
             editor.session.insert(editor.getCursorPosition(), text);
             editor.focus();
+        }
+        // ── Tab-delimited clipboard export ────────────────────────────────
+        function buildTabDelimited(tab) {
+            if (!tab.columns || !tab.data)
+                return "";
+            const fields = tab.columns.map(c => c.field);
+            const escape = (v) => {
+                const s = v == null ? "" : String(v);
+                if (s.includes("\t") || s.includes("\n") || s.includes('"'))
+                    return '"' + s.replace(/"/g, '""') + '"';
+                return s;
+            };
+            const header = fields.map(escape).join("\t");
+            const rows = tab.data.map(row => fields.map(f => escape(row[f])).join("\t"));
+            return [header, ...rows].join("\r\n");
         }
         // ── Save / Open query files ────────────────────────────────────────
         async function saveQuery() {
