@@ -1,2 +1,2 @@
-- Add attributions
-- incl. https://www.svgrepo.com/svg/13344/sql-file-format
+- Add link to github
+- Update with latest Sql4Cds NuGet
