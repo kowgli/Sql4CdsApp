@@ -953,8 +953,18 @@ html, body {
 .tree-icon-field { color: #8a8886; }
 
 .tree-label {
+    flex: 1;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.tree-type-badge {
+    flex: none;
+    font-size: 10px;
+    color: var(--f-muted);
+    opacity: 0.75;
+    margin-left: 2px;
 }
 
 /* Tree messages: loading / empty / error */

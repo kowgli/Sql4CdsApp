@@ -1,5 +1,28 @@
 namespace Sql4CdsApp.SqlEditor {
 
+    const ATTR_TYPE_LABEL: { [type: string]: string } = {
+        String:            "str",
+        Memo:              "memo",
+        Integer:           "int",
+        BigInt:            "bigint",
+        Boolean:           "bool",
+        DateTime:          "datetime",
+        Decimal:           "decimal",
+        Double:            "float",
+        Money:             "money",
+        Lookup:            "lookup",
+        Customer:          "customer",
+        Owner:             "owner",
+        Picklist:          "option",
+        State:             "state",
+        Status:            "status",
+        Uniqueidentifier:  "guid",
+        PartyList:         "parties",
+        Virtual:           "virtual",
+        EntityName:        "entity",
+        ManagedProperty:   "managed",
+    };
+
     const ICON_TABLE_SVG =
         '<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">' +
         '<path d="M1.5 2h13v12h-13V2zm1 1v2.5h11V3h-11zm0 3.5V9h4V6.5h-4zm5 0V9h6V6.5h-6zm-5 3.5v3h4v-3h-4zm5 0v3h6v-3h-6z"/></svg>';
@@ -192,6 +215,14 @@ namespace Sql4CdsApp.SqlEditor {
 
         row.appendChild(icon);
         row.appendChild(label);
+
+        if (attr.AttributeType) {
+            const badge = document.createElement("span");
+            badge.className = "tree-type-badge";
+            badge.textContent = ATTR_TYPE_LABEL[attr.AttributeType] || attr.AttributeType.toLowerCase();
+            row.appendChild(badge);
+        }
+
         row.addEventListener("dblclick", () => insertIntoEditor(name));
         return row;
     }
