@@ -73,6 +73,13 @@ Exposes four `IOrganizationService` instances:
 
 ---
 
+## Formatting Rules
+
+- **Never reformat existing code.** Only touch lines directly involved in the change.
+- **No alignment of assignments.** Do not pad spacing to align `=` signs or right-hand side expressions across multiple lines (e.g. no column-aligning property initialisers or object literals).
+
+---
+
 ## Key Conventions
 
 ### Command + Handler pattern

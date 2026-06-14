@@ -27,6 +27,7 @@ namespace Sql4CdsApp.SqlEditor {
         useLocalTimeZone: boolean;
         blockDeleteWithoutWhere: boolean;
         blockUpdateWithoutWhere: boolean;
+        useTDSEndpoint: boolean;
         autoSuggest: boolean;
     }
 
@@ -57,7 +58,8 @@ namespace Sql4CdsApp.SqlEditor {
         useLocalTimeZone:    "optLocalTime",
         blockDeleteWithoutWhere: "optBlockDelete",
         blockUpdateWithoutWhere: "optBlockUpdate",
-        autoSuggest: "optAutoSuggest"
+        useTDSEndpoint:      "optUseTDSEndpoint",
+        autoSuggest:         "optAutoSuggest"
     };
 
     export const settings: QuerySettings = {
@@ -65,6 +67,7 @@ namespace Sql4CdsApp.SqlEditor {
         useLocalTimeZone:        true,
         blockDeleteWithoutWhere: true,
         blockUpdateWithoutWhere: true,
+        useTDSEndpoint:          false,
         autoSuggest:             true
     };
 

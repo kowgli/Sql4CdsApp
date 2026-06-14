@@ -30,6 +30,7 @@ var Sql4CdsApp;
                 useLocalTimeZone: SqlEditor.settings.useLocalTimeZone,
                 blockDeleteWithoutWhere: SqlEditor.settings.blockDeleteWithoutWhere,
                 blockUpdateWithoutWhere: SqlEditor.settings.blockUpdateWithoutWhere,
+                useTDSEndpoint: SqlEditor.settings.useTDSEndpoint,
                 formattingInfo: buildFormattingInfo()
             };
             const request = {

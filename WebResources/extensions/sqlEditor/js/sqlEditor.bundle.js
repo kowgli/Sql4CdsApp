@@ -15,6 +15,7 @@ var Sql4CdsApp;
             useLocalTimeZone: "optLocalTime",
             blockDeleteWithoutWhere: "optBlockDelete",
             blockUpdateWithoutWhere: "optBlockUpdate",
+            useTDSEndpoint: "optUseTDSEndpoint",
             autoSuggest: "optAutoSuggest"
         };
         SqlEditor.settings = {
@@ -22,6 +23,7 @@ var Sql4CdsApp;
             useLocalTimeZone: true,
             blockDeleteWithoutWhere: true,
             blockUpdateWithoutWhere: true,
+            useTDSEndpoint: false,
             autoSuggest: true
         };
         SqlEditor.isSystemAdmin = false;
@@ -581,6 +583,7 @@ var Sql4CdsApp;
                 useLocalTimeZone: SqlEditor.settings.useLocalTimeZone,
                 blockDeleteWithoutWhere: SqlEditor.settings.blockDeleteWithoutWhere,
                 blockUpdateWithoutWhere: SqlEditor.settings.blockUpdateWithoutWhere,
+                useTDSEndpoint: SqlEditor.settings.useTDSEndpoint,
                 formattingInfo: buildFormattingInfo()
             };
             const request = {

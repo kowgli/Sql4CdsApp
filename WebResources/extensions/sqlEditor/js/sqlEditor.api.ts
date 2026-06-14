@@ -28,6 +28,7 @@ namespace Sql4CdsApp.SqlEditor {
             useLocalTimeZone:        settings.useLocalTimeZone,
             blockDeleteWithoutWhere: settings.blockDeleteWithoutWhere,
             blockUpdateWithoutWhere: settings.blockUpdateWithoutWhere,
+            useTDSEndpoint:          settings.useTDSEndpoint,
             formattingInfo:          buildFormattingInfo()
         };
 
