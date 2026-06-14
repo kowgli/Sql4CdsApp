@@ -138,7 +138,7 @@ ORDER BY
                     return;
                 exportPopup.classList.remove("open");
                 exportToggleBtn.setAttribute("aria-expanded", "false");
-                SqlEditor.table.download("xlsx", (tab.title || "results") + ".xlsx", { sheetName: "Results" });
+                SqlEditor.table.download("xlsx", (tab.title || "results") + ".xlsx", { sheetName: "Results", columnHeaders: SqlEditor.settings.exportWithHeader });
             });
             document.getElementById("exportCsvBtn").addEventListener("click", () => {
                 var _a;
@@ -147,7 +147,7 @@ ORDER BY
                     return;
                 exportPopup.classList.remove("open");
                 exportToggleBtn.setAttribute("aria-expanded", "false");
-                SqlEditor.table.download("csv", (tab.title || "results") + ".csv");
+                SqlEditor.table.download("csv", (tab.title || "results") + ".csv", { columnHeaders: SqlEditor.settings.exportWithHeader });
             });
             document.getElementById("exportClipboardBtn").addEventListener("click", () => {
                 var _a;

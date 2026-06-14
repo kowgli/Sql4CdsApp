@@ -16,7 +16,8 @@ var Sql4CdsApp;
             blockDeleteWithoutWhere: "optBlockDelete",
             blockUpdateWithoutWhere: "optBlockUpdate",
             useTDSEndpoint: "optUseTDSEndpoint",
-            autoSuggest: "optAutoSuggest"
+            autoSuggest: "optAutoSuggest",
+            exportWithHeader: "optExportWithHeader"
         };
         SqlEditor.settings = {
             bypassCustomPlugins: false,
@@ -24,7 +25,8 @@ var Sql4CdsApp;
             blockDeleteWithoutWhere: true,
             blockUpdateWithoutWhere: true,
             useTDSEndpoint: false,
-            autoSuggest: true
+            autoSuggest: true,
+            exportWithHeader: true
         };
         SqlEditor.isSystemAdmin = false;
     })(SqlEditor = Sql4CdsApp.SqlEditor || (Sql4CdsApp.SqlEditor = {}));
@@ -1164,8 +1166,10 @@ var Sql4CdsApp;
                     return '"' + s.replace(/"/g, '""') + '"';
                 return s;
             };
-            const header = fields.map(escape).join("\t");
             const rows = tab.data.map(row => fields.map(f => escape(row[f])).join("\t"));
+            if (!SqlEditor.settings.exportWithHeader)
+                return rows.join("\r\n");
+            const header = fields.map(escape).join("\t");
             return [header, ...rows].join("\r\n");
         }
         SqlEditor.buildTabDelimited = buildTabDelimited;
@@ -1371,7 +1375,7 @@ ORDER BY
                     return;
                 exportPopup.classList.remove("open");
                 exportToggleBtn.setAttribute("aria-expanded", "false");
-                SqlEditor.table.download("xlsx", (tab.title || "results") + ".xlsx", { sheetName: "Results" });
+                SqlEditor.table.download("xlsx", (tab.title || "results") + ".xlsx", { sheetName: "Results", columnHeaders: SqlEditor.settings.exportWithHeader });
             });
             document.getElementById("exportCsvBtn").addEventListener("click", () => {
                 var _a;
@@ -1380,7 +1384,7 @@ ORDER BY
                     return;
                 exportPopup.classList.remove("open");
                 exportToggleBtn.setAttribute("aria-expanded", "false");
-                SqlEditor.table.download("csv", (tab.title || "results") + ".csv");
+                SqlEditor.table.download("csv", (tab.title || "results") + ".csv", { columnHeaders: SqlEditor.settings.exportWithHeader });
             });
             document.getElementById("exportClipboardBtn").addEventListener("click", () => {
                 var _a;

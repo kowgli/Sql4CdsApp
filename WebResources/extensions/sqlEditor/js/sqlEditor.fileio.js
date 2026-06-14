@@ -15,8 +15,10 @@ var Sql4CdsApp;
                     return '"' + s.replace(/"/g, '""') + '"';
                 return s;
             };
-            const header = fields.map(escape).join("\t");
             const rows = tab.data.map(row => fields.map(f => escape(row[f])).join("\t"));
+            if (!SqlEditor.settings.exportWithHeader)
+                return rows.join("\r\n");
+            const header = fields.map(escape).join("\t");
             return [header, ...rows].join("\r\n");
         }
         SqlEditor.buildTabDelimited = buildTabDelimited;

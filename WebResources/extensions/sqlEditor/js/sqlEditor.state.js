@@ -16,7 +16,8 @@ var Sql4CdsApp;
             blockDeleteWithoutWhere: "optBlockDelete",
             blockUpdateWithoutWhere: "optBlockUpdate",
             useTDSEndpoint: "optUseTDSEndpoint",
-            autoSuggest: "optAutoSuggest"
+            autoSuggest: "optAutoSuggest",
+            exportWithHeader: "optExportWithHeader"
         };
         SqlEditor.settings = {
             bypassCustomPlugins: false,
@@ -24,7 +25,8 @@ var Sql4CdsApp;
             blockDeleteWithoutWhere: true,
             blockUpdateWithoutWhere: true,
             useTDSEndpoint: false,
-            autoSuggest: true
+            autoSuggest: true,
+            exportWithHeader: true
         };
         SqlEditor.isSystemAdmin = false;
     })(SqlEditor = Sql4CdsApp.SqlEditor || (Sql4CdsApp.SqlEditor = {}));

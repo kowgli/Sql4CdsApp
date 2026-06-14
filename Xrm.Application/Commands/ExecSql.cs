@@ -86,8 +86,12 @@ namespace Xrm.Application.Commands
                             if (!reader.IsClosed && reader.FieldCount > 0)
                             {
                                 var columns = new string[reader.FieldCount];
+                                var unnamedCount = 0;
                                 for (int i = 0; i < reader.FieldCount; i++)
-                                    columns[i] = reader.GetName(i);
+                                {
+                                    var name = reader.GetName(i);
+                                    columns[i] = string.IsNullOrEmpty(name) ? $"col{++unnamedCount}" : name;
+                                }
 
                                 response.Columns = columns;
                                 response.Rows = new List<string[]>();

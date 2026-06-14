@@ -146,7 +146,7 @@ ORDER BY
             if (!tab?.data?.length) return;
             exportPopup.classList.remove("open");
             exportToggleBtn.setAttribute("aria-expanded", "false");
-            table.download("xlsx", (tab.title || "results") + ".xlsx", { sheetName: "Results" });
+            table.download("xlsx", (tab.title || "results") + ".xlsx", { sheetName: "Results", columnHeaders: settings.exportWithHeader });
         });
 
         document.getElementById("exportCsvBtn")!.addEventListener("click", () => {
@@ -154,7 +154,7 @@ ORDER BY
             if (!tab?.data?.length) return;
             exportPopup.classList.remove("open");
             exportToggleBtn.setAttribute("aria-expanded", "false");
-            table.download("csv", (tab.title || "results") + ".csv");
+            table.download("csv", (tab.title || "results") + ".csv", { columnHeaders: settings.exportWithHeader });
         });
 
         document.getElementById("exportClipboardBtn")!.addEventListener("click", () => {

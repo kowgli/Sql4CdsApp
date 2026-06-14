@@ -29,6 +29,7 @@ namespace Sql4CdsApp.SqlEditor {
         blockUpdateWithoutWhere: boolean;
         useTDSEndpoint: boolean;
         autoSuggest: boolean;
+        exportWithHeader: boolean;
     }
 
     // ── Shared DOM element refs (assigned in onLoad) ───────────────────
@@ -59,7 +60,8 @@ namespace Sql4CdsApp.SqlEditor {
         blockDeleteWithoutWhere: "optBlockDelete",
         blockUpdateWithoutWhere: "optBlockUpdate",
         useTDSEndpoint:      "optUseTDSEndpoint",
-        autoSuggest:         "optAutoSuggest"
+        autoSuggest:         "optAutoSuggest",
+        exportWithHeader:    "optExportWithHeader"
     };
 
     export const settings: QuerySettings = {
@@ -68,7 +70,8 @@ namespace Sql4CdsApp.SqlEditor {
         blockDeleteWithoutWhere: true,
         blockUpdateWithoutWhere: true,
         useTDSEndpoint:          false,
-        autoSuggest:             true
+        autoSuggest:             true,
+        exportWithHeader:        true
     };
 
     export let isSystemAdmin = false;
