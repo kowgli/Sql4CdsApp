@@ -21,6 +21,7 @@
 </head>
 
 <body>
+
     <div id="app">
 
         <!-- Left side: full object explorer + collapsed rail, crossfaded in place -->
@@ -133,6 +134,13 @@
                     <span class="panel-title">Results</span>
                     <span id="status" class="panel-status">Ready</span>
                     <span id="rowsInfo" class="panel-result-info"></span>
+                    <div id="viewToggleWrap" style="display:none">
+                        <button class="export-btn" id="viewToggleBtn" title="Switch to record view" aria-label="Switch to record view">
+                            <svg id="viewIconRecord" width="13" height="13" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M1.5 2h13v12h-13V2zm1 1v2.5h11V3h-11zm0 3.5V9h3V6.5h-3zm4 0V9h7V6.5h-7zm-4 3.5v3h3v-3h-3zm4 0v3h7v-3h-7z"/></svg>
+                            <svg id="viewIconGrid" width="13" height="13" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" style="display:none"><path d="M1.5 2h13v12h-13V2zm1 1v2.5h11V3h-11zm0 3.5V9h4V6.5h-4zm5 0V9h6V6.5h-6zm-5 3.5v3h4v-3h-4zm5 0v3h6v-3h-6z"/></svg>
+                            <span id="viewToggleLabel">Record view</span>
+                        </button>
+                    </div>
                     <div id="exportWrap" style="display:none">
                         <button class="export-btn" id="exportToggleBtn" title="Export or copy results" aria-haspopup="true" aria-expanded="false">
                             <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M7.25 1v7.44L5.03 6.22 3.97 7.28 8 11.31l4.03-4.03-1.06-1.06-2.22 2.22V1h-1.5zM1 12v2a1 1 0 001 1h12a1 1 0 001-1v-2h-1.5v1.5h-11V12H1z"/></svg>
@@ -167,6 +175,24 @@
                     </div>
                     <div id="commandMessage"></div>
                     <div id="grid"></div>
+                    <div id="recordView" style="display:none">
+                        <div id="recordNav">
+                            <button class="rec-nav-btn" id="recFirstBtn" title="First record" aria-label="First record">
+                                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 3h1.5v10H2zm11.5 0L6 8l7.5 5V3z"/></svg>
+                            </button>
+                            <button class="rec-nav-btn" id="recPrevBtn" title="Previous record" aria-label="Previous record">
+                                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M11 3L3.5 8 11 13V3z"/></svg>
+                            </button>
+                            <span id="recCounter" class="rec-counter"></span>
+                            <button class="rec-nav-btn" id="recNextBtn" title="Next record" aria-label="Next record">
+                                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M5 3l7.5 5L5 13V3z"/></svg>
+                            </button>
+                            <button class="rec-nav-btn" id="recLastBtn" title="Last record" aria-label="Last record">
+                                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 3l8 5-8 5zM12.5 3H14v10h-1.5z"/></svg>
+                            </button>
+                        </div>
+                        <div id="recordBody"></div>
+                    </div>
                 </div>
             </div>
         </div>

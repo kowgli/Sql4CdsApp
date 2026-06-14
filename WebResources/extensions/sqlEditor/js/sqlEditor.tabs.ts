@@ -41,17 +41,19 @@ namespace Sql4CdsApp.SqlEditor {
         const id = ++tabSeq;
         const tab: QueryTab = {
             id,
-            title:        "Query " + id,
-            session:      makeSession(initialSql),
-            columns:      null,
-            data:         null,
-            commandMsg:   null,
-            rowsInfoText: "",
-            errorText:    null,
-            statusText:   "Ready",
-            running:      false,
-            runGen:       0,
-            loadStart:    null
+            title:          "Query " + id,
+            session:        makeSession(initialSql),
+            columns:        null,
+            data:           null,
+            commandMsg:     null,
+            rowsInfoText:   "",
+            errorText:      null,
+            statusText:     "Ready",
+            running:        false,
+            runGen:         0,
+            loadStart:      null,
+            recordViewMode: false,
+            recordIndex:    0
         };
         tabs.push(tab);
         return tab;
@@ -94,6 +96,8 @@ namespace Sql4CdsApp.SqlEditor {
             tab.statusText = "Ready";
             tab.running = false;
             tab.loadStart = null;
+            tab.recordViewMode = false;
+            tab.recordIndex = 0;
             editor.setSession(tab.session);
             updateTabStrip();
             renderActiveTab();
@@ -176,13 +180,17 @@ namespace Sql4CdsApp.SqlEditor {
         }
 
         rowsInfo.textContent = tab.rowsInfoText || "";
-        exportWrap.style.display = (tab.data && tab.data.length > 0) ? "" : "none";
+        const hasData = !!(tab.data && tab.data.length > 0);
+        exportWrap.style.display = hasData ? "" : "none";
+        viewToggleWrap.style.display = hasData ? "" : "none";
         setStatus(tab.statusText || "Ready");
         setRunning(tab.running);
 
         if (tab.running) showLoading(); else hideLoading();
 
+        applyViewMode(tab);
+
         editor.resize();
-        if (tableBuilt) table.redraw(true);
+        if (tableBuilt && !(tab.recordViewMode && hasData)) table.redraw(true);
     }
 }

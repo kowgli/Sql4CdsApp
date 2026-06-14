@@ -51,6 +51,7 @@ ORDER BY
         loadingTimer   = document.getElementById("loadingTimer")!;
         tabListEl      = document.getElementById("tabList")!;
         exportWrap     = document.getElementById("exportWrap")!;
+        viewToggleWrap = document.getElementById("viewToggleWrap")!;
 
         // ── Toolbar buttons ────────────────────────────────────────────
         document.getElementById("runBtn")!.addEventListener("click", run);
@@ -169,6 +170,20 @@ ORDER BY
                 window.setTimeout(() => setStatus(prev || ""), 2000);
             }).catch(() => setStatus("Copy failed"));
         });
+
+        // ── View toggle + record navigation ───────────────────────────
+        document.getElementById("viewToggleBtn")!.addEventListener("click", () => {
+            const tab = getActiveTab();
+            if (!tab?.data?.length) return;
+            tab.recordViewMode = !tab.recordViewMode;
+            applyViewMode(tab);
+            if (!tab.recordViewMode && tableBuilt) table.redraw(true);
+        });
+
+        document.getElementById("recFirstBtn")!.addEventListener("click", () => navigateRecord("first"));
+        document.getElementById("recPrevBtn")!.addEventListener("click",  () => navigateRecord(-1));
+        document.getElementById("recNextBtn")!.addEventListener("click",  () => navigateRecord(1));
+        document.getElementById("recLastBtn")!.addEventListener("click",  () => navigateRecord("last"));
 
         // ── About modal ────────────────────────────────────────────────
         const aboutBtn     = document.getElementById("aboutBtn")!;

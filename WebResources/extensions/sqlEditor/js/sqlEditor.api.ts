@@ -97,6 +97,7 @@ namespace Sql4CdsApp.SqlEditor {
                 const model      = buildGridModel(result);
                 tab.columns      = model.columns;
                 tab.data         = model.data;
+                tab.recordIndex  = 0;
                 tab.commandMsg   = null;
                 tab.rowsInfoText = `${model.data.length} rows`;
                 tab.statusText   = `Done in ${elapsed} ms`;

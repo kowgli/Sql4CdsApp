@@ -46,6 +46,7 @@ ORDER BY
             SqlEditor.loadingTimer = document.getElementById("loadingTimer");
             SqlEditor.tabListEl = document.getElementById("tabList");
             SqlEditor.exportWrap = document.getElementById("exportWrap");
+            SqlEditor.viewToggleWrap = document.getElementById("viewToggleWrap");
             // ── Toolbar buttons ────────────────────────────────────────────
             document.getElementById("runBtn").addEventListener("click", SqlEditor.run);
             document.getElementById("newTabBtn").addEventListener("click", SqlEditor.newTab);
@@ -163,6 +164,21 @@ ORDER BY
                     window.setTimeout(() => SqlEditor.setStatus(prev || ""), 2000);
                 }).catch(() => SqlEditor.setStatus("Copy failed"));
             });
+            // ── View toggle + record navigation ───────────────────────────
+            document.getElementById("viewToggleBtn").addEventListener("click", () => {
+                var _a;
+                const tab = SqlEditor.getActiveTab();
+                if (!((_a = tab === null || tab === void 0 ? void 0 : tab.data) === null || _a === void 0 ? void 0 : _a.length))
+                    return;
+                tab.recordViewMode = !tab.recordViewMode;
+                SqlEditor.applyViewMode(tab);
+                if (!tab.recordViewMode && SqlEditor.tableBuilt)
+                    SqlEditor.table.redraw(true);
+            });
+            document.getElementById("recFirstBtn").addEventListener("click", () => SqlEditor.navigateRecord("first"));
+            document.getElementById("recPrevBtn").addEventListener("click", () => SqlEditor.navigateRecord(-1));
+            document.getElementById("recNextBtn").addEventListener("click", () => SqlEditor.navigateRecord(1));
+            document.getElementById("recLastBtn").addEventListener("click", () => SqlEditor.navigateRecord("last"));
             // ── About modal ────────────────────────────────────────────────
             const aboutBtn = document.getElementById("aboutBtn");
             const aboutOverlay = document.getElementById("aboutOverlay");

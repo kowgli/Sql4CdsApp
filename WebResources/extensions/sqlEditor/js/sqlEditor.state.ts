@@ -20,6 +20,8 @@ namespace Sql4CdsApp.SqlEditor {
         running: boolean;
         runGen: number;
         loadStart: number | null;
+        recordViewMode: boolean;
+        recordIndex: number;
     }
 
     export interface QuerySettings {
@@ -42,6 +44,7 @@ namespace Sql4CdsApp.SqlEditor {
     export let loadingOverlay: HTMLElement;
     export let loadingTimer: HTMLElement;
     export let exportWrap: HTMLElement;
+    export let viewToggleWrap: HTMLElement;
     export let tableBuilt = false;
     export let timerInterval: number | null = null;
 

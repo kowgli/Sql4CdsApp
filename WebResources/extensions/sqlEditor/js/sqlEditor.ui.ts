@@ -101,6 +101,90 @@ namespace Sql4CdsApp.SqlEditor {
         if (lbl) lbl.style.opacity = isSystemAdmin ? "" : "0.45";
     }
 
+    // ── Record / grid view toggle ──────────────────────────────────────
+    export function applyViewMode(tab: QueryTab) {
+        const grid        = document.getElementById("grid")!;
+        const recordView  = document.getElementById("recordView")!;
+        const toggleBtn   = document.getElementById("viewToggleBtn") as HTMLButtonElement;
+        const iconRecord  = document.getElementById("viewIconRecord") as any;
+        const iconGrid    = document.getElementById("viewIconGrid") as any;
+        const label       = document.getElementById("viewToggleLabel")!;
+        const inRecordView = tab.recordViewMode && !!(tab.data && tab.data.length > 0);
+
+        if (inRecordView) {
+            grid.style.display        = "none";
+            recordView.style.display  = "";
+            renderRecordView(tab);
+            iconRecord.style.display  = "none";
+            iconGrid.style.display    = "";
+            label.textContent         = "Grid view";
+            toggleBtn.title           = "Switch to grid view";
+            toggleBtn.setAttribute("aria-label", "Switch to grid view");
+        } else {
+            grid.style.display        = "";
+            recordView.style.display  = "none";
+            iconRecord.style.display  = "";
+            iconGrid.style.display    = "none";
+            label.textContent         = "Record view";
+            toggleBtn.title           = "Switch to record view";
+            toggleBtn.setAttribute("aria-label", "Switch to record view");
+        }
+    }
+
+    export function renderRecordView(tab: QueryTab) {
+        if (!tab.data?.length || !tab.columns) return;
+
+        const total = tab.data.length;
+        tab.recordIndex = Math.max(0, Math.min(total - 1, tab.recordIndex));
+        const idx = tab.recordIndex;
+        const row = tab.data[idx];
+
+        const body = document.getElementById("recordBody")!;
+        body.textContent = "";
+        const frag = document.createDocumentFragment();
+        for (const col of tab.columns) {
+            const field   = col.field as string;
+            const rowEl   = document.createElement("div");
+            rowEl.className = "rec-row";
+
+            const labelEl = document.createElement("div");
+            labelEl.className   = "rec-label";
+            labelEl.textContent = col.title || field;
+            labelEl.title       = col.title || field;
+
+            const valueEl = document.createElement("div");
+            const val = row[field];
+            if (val == null) {
+                valueEl.className   = "rec-value rec-null";
+                valueEl.textContent = "NULL";
+            } else {
+                valueEl.className   = "rec-value";
+                valueEl.textContent = String(val);
+            }
+
+            rowEl.appendChild(labelEl);
+            rowEl.appendChild(valueEl);
+            frag.appendChild(rowEl);
+        }
+        body.appendChild(frag);
+
+        (document.getElementById("recFirstBtn") as HTMLButtonElement).disabled = idx === 0;
+        (document.getElementById("recPrevBtn")  as HTMLButtonElement).disabled = idx === 0;
+        (document.getElementById("recNextBtn")  as HTMLButtonElement).disabled = idx === total - 1;
+        (document.getElementById("recLastBtn")  as HTMLButtonElement).disabled = idx === total - 1;
+        document.getElementById("recCounter")!.textContent = (idx + 1) + " / " + total;
+    }
+
+    export function navigateRecord(delta: number | "first" | "last") {
+        const tab = getActiveTab();
+        if (!tab?.data?.length) return;
+        const total = tab.data.length;
+        if (delta === "first")      tab.recordIndex = 0;
+        else if (delta === "last")  tab.recordIndex = total - 1;
+        else tab.recordIndex = Math.max(0, Math.min(total - 1, tab.recordIndex + delta));
+        renderRecordView(tab);
+    }
+
     // ── Window resize ──────────────────────────────────────────────────
     export function onWindowResize() {
         editor.resize();

@@ -94,6 +94,7 @@ var Sql4CdsApp;
                     const model = SqlEditor.buildGridModel(result);
                     tab.columns = model.columns;
                     tab.data = model.data;
+                    tab.recordIndex = 0;
                     tab.commandMsg = null;
                     tab.rowsInfoText = `${model.data.length} rows`;
                     tab.statusText = `Done in ${elapsed} ms`;

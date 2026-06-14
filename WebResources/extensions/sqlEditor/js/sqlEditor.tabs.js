@@ -48,7 +48,9 @@ var Sql4CdsApp;
                 statusText: "Ready",
                 running: false,
                 runGen: 0,
-                loadStart: null
+                loadStart: null,
+                recordViewMode: false,
+                recordIndex: 0
             };
             SqlEditor.tabs.push(tab);
             return tab;
@@ -97,6 +99,8 @@ var Sql4CdsApp;
                 tab.statusText = "Ready";
                 tab.running = false;
                 tab.loadStart = null;
+                tab.recordViewMode = false;
+                tab.recordIndex = 0;
                 SqlEditor.editor.setSession(tab.session);
                 updateTabStrip();
                 renderActiveTab();
@@ -179,15 +183,18 @@ var Sql4CdsApp;
                 SqlEditor.table.setData(tab.data || []);
             }
             SqlEditor.rowsInfo.textContent = tab.rowsInfoText || "";
-            SqlEditor.exportWrap.style.display = (tab.data && tab.data.length > 0) ? "" : "none";
+            const hasData = !!(tab.data && tab.data.length > 0);
+            SqlEditor.exportWrap.style.display = hasData ? "" : "none";
+            SqlEditor.viewToggleWrap.style.display = hasData ? "" : "none";
             SqlEditor.setStatus(tab.statusText || "Ready");
             SqlEditor.setRunning(tab.running);
             if (tab.running)
                 SqlEditor.showLoading();
             else
                 SqlEditor.hideLoading();
+            SqlEditor.applyViewMode(tab);
             SqlEditor.editor.resize();
-            if (SqlEditor.tableBuilt)
+            if (SqlEditor.tableBuilt && !(tab.recordViewMode && hasData))
                 SqlEditor.table.redraw(true);
         }
         SqlEditor.renderActiveTab = renderActiveTab;

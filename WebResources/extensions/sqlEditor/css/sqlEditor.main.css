@@ -586,6 +586,100 @@ html, body {
     overflow: hidden;
 }
 
+/* ── Record view ── */
+#viewToggleWrap {
+    flex: none;
+    display: flex;
+    align-items: center;
+}
+
+#recordView {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#recordNav {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 4px 8px;
+    border-bottom: 1px solid var(--f-border);
+    background: var(--f-header-bg);
+}
+
+.rec-nav-btn {
+    appearance: none;
+    border: 1px solid transparent;
+    background: transparent;
+    border-radius: 3px;
+    padding: 3px 7px;
+    cursor: pointer;
+    color: var(--f-text);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.rec-nav-btn:hover:not(:disabled) { background: var(--f-hover); border-color: var(--f-border); }
+.rec-nav-btn:active:not(:disabled) { background: var(--f-pressed); }
+.rec-nav-btn:disabled { color: var(--f-muted); opacity: 0.4; cursor: default; }
+
+.rec-counter {
+    padding: 0 12px;
+    font-size: 12px;
+    color: var(--f-muted);
+    font-variant-numeric: tabular-nums;
+    min-width: 70px;
+    text-align: center;
+}
+
+#recordBody {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.rec-row {
+    display: grid;
+    grid-template-columns: minmax(100px, 220px) 1fr;
+    border-bottom: 1px solid var(--f-border);
+    min-height: 30px;
+}
+
+.rec-row:hover { background: var(--f-hover); }
+
+.rec-label {
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--f-muted);
+    border-right: 1px solid var(--f-border);
+    background: var(--f-header-bg);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+}
+
+.rec-value {
+    padding: 6px 12px;
+    font-size: 13px;
+    color: var(--f-text);
+    word-break: break-word;
+    display: flex;
+    align-items: center;
+}
+
+.rec-null {
+    color: var(--f-muted);
+    font-style: italic;
+}
+
 /* ── Tabulator – Power Platform grid style ── */
 .tabulator {
     border: none !important;
